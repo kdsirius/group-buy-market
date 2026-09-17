@@ -1,0 +1,16 @@
+package com.sirius.infrastructure.dao;
+
+import com.sirius.infrastructure.dao.po.GroupBuyActivity;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+
+/**
+ * @author Sirius
+ * @description 拼团活动Dao
+ * @date 2026年09月17日 21:14
+ */
+@Mapper
+public interface IGroupBuyActivityDao {
+    List<GroupBuyActivity> queryGroupBuyActivityList();
+}
