@@ -13,6 +13,8 @@ import com.sirius.infrastructure.dao.po.GroupBuyActivity;
 import com.sirius.infrastructure.dao.po.GroupBuyDiscount;
 import com.sirius.infrastructure.dao.po.SCSkuActivity;
 import com.sirius.infrastructure.dao.po.Sku;
+import com.sirius.infrastructure.redis.IRedisService;
+import org.redisson.api.RBitSet;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -35,6 +37,17 @@ public class ActivityRepository implements IActivityRepository {
 
     @Resource
     private ISCSkuActivityDao scSkuActivityDao;
+
+    @Resource
+    private IRedisService redisService;
+
+    @Override
+    public boolean isTagCrowdRange(String tagId, String userId) {
+        RBitSet bitSet = redisService.getBitSet(tagId);
+        if (!bitSet.isExists()) return true;
+        // 判断用户是否在人群中
+        return bitSet.get(redisService.getIndexFromUserId(userId));
+    }
 
     @Override
     public SCSkuActivityVO querySCSkuActivityBySCGoodsId(String source, String channel, String goodsId) {

@@ -19,7 +19,7 @@ public class QueryGroupBuyActivityDiscountVOThreadTask implements Callable<Group
     // 渠道
     private final String channel;
 
-    // 商品Id
+    // 商品Idcrowd_tags_detail
     private final String goodsId;
 
     // 活动仓储

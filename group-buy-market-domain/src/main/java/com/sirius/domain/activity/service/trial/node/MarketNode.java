@@ -38,10 +38,14 @@ public class MarketNode extends AbstractGroupBuyMarketSupport {
     private ThreadPoolExecutor threadPoolExecutor;
 
     @Resource
-    private EndNode endNode;
+    private TagNode tagNode;
 
     @Resource
     private ErrorNode errorNode;
+
+    @Resource
+    private Map<String, IDiscountCalculateService> discountCalculateServiceMap;
+
 
     @Override
     protected void MultiThread(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws ExecutionException, InterruptedException, TimeoutException {
@@ -59,9 +63,6 @@ public class MarketNode extends AbstractGroupBuyMarketSupport {
 
         log.info("拼团商品查询试算服务-MarketNode userId:{} 异步线程加载数据[GroupBuyActivityDiscountVO、SkuVO]完成", requestParameter.getUserId());
     }
-
-    @Resource
-    private Map<String, IDiscountCalculateService> discountCalculateServiceMap;
 
     @Override
     protected TrialBalanceEntity doApply(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws Exception {
@@ -102,6 +103,6 @@ public class MarketNode extends AbstractGroupBuyMarketSupport {
         if (null == dynamicContext.getGroupBuyActivityDiscountVO() || null == dynamicContext.getSkuVO() || null == dynamicContext.getDeductionPrice()) {
             return errorNode;
         }
-        return endNode;
+        return tagNode;
     }
 }

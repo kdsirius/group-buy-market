@@ -1,11 +1,14 @@
 package com.sirius.domain.activity.model.valobj;
 
+import com.sirius.types.common.Constants;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author Sirius
@@ -48,6 +51,30 @@ public class GroupBuyActivityDiscountVO {
     private String tagId;
     /** 人群标签规则范围 */
     private String tagScope;
+
+    /**
+     *  可见限制
+     */
+    public boolean isVisible(){
+        if (StringUtils.isBlank(this.tagScope)) return TagScopeEnumVO.VISIBLE.getAllow();
+        String[] split = this.tagScope.split(Constants.SPLIT);
+        if (split.length > 0 && Objects.equals(split[0],"1") && StringUtils.isNoneBlank(split[0])){
+            return TagScopeEnumVO.VISIBLE.getRefuse();
+        }
+        return TagScopeEnumVO.VISIBLE.getAllow();
+    }
+
+    /**
+     *  参与限制
+     */
+    public boolean isEnable(){
+        if (StringUtils.isBlank(this.tagScope)) return TagScopeEnumVO.ENABLE.getAllow();
+        String[] split = this.tagScope.split(Constants.SPLIT);
+        if (split.length == 2 && Objects.equals(split[1],"2") && StringUtils.isNoneBlank(split[1])){
+            return TagScopeEnumVO.ENABLE.getRefuse();
+        }
+        return TagScopeEnumVO.ENABLE.getAllow();
+    }
 
     @Getter
     @Builder
