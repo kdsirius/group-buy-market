@@ -17,17 +17,12 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SkuVO {
-    /**
-     * 商品ID
-     */
+
+    /** 商品ID */
     private String goodsId;
-    /**
-     * 商品名称
-     */
+    /** 商品名称 */
     private String goodsName;
-    /**
-     * 原始价格
-     */
+    /** 原始价格 */
     private BigDecimal originalPrice;
 
 }

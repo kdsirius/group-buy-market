@@ -1,10 +1,5 @@
 package com.sirius.infrastructure.dao.po;
 
-/**
- * @author Sirius
- * @description
- * @date 2026年09月17日 20:58
- */
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,21 +34,6 @@ public class GroupBuyActivity implements Serializable {
      * 活动名称
      */
     private String activityName;
-
-    /**
-     * 来源
-     */
-    private String source;
-
-    /**
-     * 渠道
-     */
-    private String channel;
-
-    /**
-     * 商品ID
-     */
-    private String goodsId;
 
     /**
      * 折扣ID

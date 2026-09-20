@@ -14,5 +14,7 @@ import java.util.List;
 public interface IGroupBuyActivityDao {
     List<GroupBuyActivity> queryGroupBuyActivityList();
 
-    GroupBuyActivity queryValidGroupByActivity(GroupBuyActivity groupBuyActivityReq);
+    GroupBuyActivity queryValidGroupBuyActivity(GroupBuyActivity groupBuyActivityReq);
+
+    GroupBuyActivity queryValidGroupBuyActivityByActivityId(Long activityId);
 }

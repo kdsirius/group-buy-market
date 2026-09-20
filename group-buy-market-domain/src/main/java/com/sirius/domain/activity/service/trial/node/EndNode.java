@@ -15,14 +15,14 @@ import java.math.BigDecimal;
 
 /**
  * @author Sirius
- * @description 结束节点
+ * @description 正常结束节点
  * @date 2026年09月18日 17:05
  */
 @Slf4j
 @Service
 public class EndNode extends AbstractGroupBuyMarketSupport {
     @Override
-    protected TrialBalanceEntity doApply(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws Exception {
+    protected TrialBalanceEntity doApply(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) {
         log.info("拼团商品查询试算服务-EndNode userId:{} requestParameter:{}", requestParameter.getUserId(), JSON.toJSONString(requestParameter));
 
         // 拼团活动营销配置值对象

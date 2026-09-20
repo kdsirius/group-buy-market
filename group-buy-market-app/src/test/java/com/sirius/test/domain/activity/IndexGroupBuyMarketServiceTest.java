@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.sirius.domain.activity.model.entity.MarketProductEntity;
 import com.sirius.domain.activity.model.entity.TrialBalanceEntity;
 import com.sirius.domain.activity.service.IIndexGroupBuyMarketService;
+import com.sirius.types.exception.AppException;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,4 +39,16 @@ public class IndexGroupBuyMarketServiceTest {
         log.info("请求参数:{}", JSON.toJSONString(marketProductEntity));
         log.info("返回结果:{}", JSON.toJSONString(trialBalanceEntity));
     }
+
+    @Test
+    public void test_indexMarketTrial_error() throws Exception {
+        MarketProductEntity marketProductEntity = new MarketProductEntity();
+        marketProductEntity.setUserId("xiaofuge");
+        marketProductEntity.setSource("s01");
+        marketProductEntity.setChannel("c01");
+        marketProductEntity.setGoodsId("9890002");
+
+        Assert.assertThrows(AppException.class, () -> indexGroupBuyMarketService.indexMarketTrial(marketProductEntity));
+    }
+
 }
