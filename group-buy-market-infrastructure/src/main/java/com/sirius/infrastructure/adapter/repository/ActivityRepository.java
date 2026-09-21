@@ -13,6 +13,7 @@ import com.sirius.infrastructure.dao.po.GroupBuyActivity;
 import com.sirius.infrastructure.dao.po.GroupBuyDiscount;
 import com.sirius.infrastructure.dao.po.SCSkuActivity;
 import com.sirius.infrastructure.dao.po.Sku;
+import com.sirius.infrastructure.dcc.DCCService;
 import com.sirius.infrastructure.redis.IRedisService;
 import org.redisson.api.RBitSet;
 import org.springframework.stereotype.Repository;
@@ -40,6 +41,9 @@ public class ActivityRepository implements IActivityRepository {
 
     @Resource
     private IRedisService redisService;
+
+    @Resource
+    private DCCService dccService;
 
     @Override
     public boolean isTagCrowdRange(String tagId, String userId) {
@@ -110,5 +114,15 @@ public class ActivityRepository implements IActivityRepository {
                 .goodsName(sku.getGoodsName())
                 .originalPrice(sku.getOriginalPrice())
                 .build();
+    }
+
+    @Override
+    public boolean downgradeSwitch() {
+        return dccService.isDowngradeSwitch();
+    }
+
+    @Override
+    public boolean cutRange(String userId) {
+        return dccService.isCutRange(userId);
     }
 }

@@ -1,6 +1,5 @@
 package com.sirius.domain.activity.service.trial.node;
 
-import com.sirius.domain.activity.adapter.repository.IActivityRepository;
 import com.sirius.domain.activity.model.entity.MarketProductEntity;
 import com.sirius.domain.activity.model.entity.TrialBalanceEntity;
 import com.sirius.domain.activity.model.valobj.GroupBuyActivityDiscountVO;
@@ -22,11 +21,9 @@ import javax.annotation.Resource;
 @Slf4j
 @Service
 public class TagNode extends AbstractGroupBuyMarketSupport {
-    @Resource
-    private EndNode endNode;
 
     @Resource
-    private IActivityRepository repository;
+    private EndNode endNode;
 
     @Override
     protected TrialBalanceEntity doApply(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws Exception {

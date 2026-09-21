@@ -1,7 +1,6 @@
 package com.sirius.domain.activity.service.trial.node;
 
 import com.alibaba.fastjson.JSON;
-import com.sirius.domain.activity.adapter.repository.IActivityRepository;
 import com.sirius.domain.activity.model.entity.MarketProductEntity;
 import com.sirius.domain.activity.model.entity.TrialBalanceEntity;
 import com.sirius.domain.activity.model.valobj.GroupBuyActivityDiscountVO;
@@ -30,9 +29,6 @@ import java.util.concurrent.*;
 @Slf4j
 @Service
 public class MarketNode extends AbstractGroupBuyMarketSupport {
-
-    @Resource
-    private IActivityRepository repository;
 
     @Resource
     private ThreadPoolExecutor threadPoolExecutor;
