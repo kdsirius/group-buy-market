@@ -1,10 +1,10 @@
-package com.sirius.domain.trade.service.filter;
+package com.sirius.domain.trade.service.lock.filter;
 
 import com.sirius.domain.trade.adapter.repository.ITradeRepository;
 import com.sirius.domain.trade.model.entity.GroupBuyActivityEntity;
 import com.sirius.domain.trade.model.entity.TradeRuleCommandEntity;
 import com.sirius.domain.trade.model.entity.TradeRuleFilterBackEntity;
-import com.sirius.domain.trade.service.factory.TradeRuleFilterFactory;
+import com.sirius.domain.trade.service.lock.factory.TradeRuleFilterFactory;
 import com.sirius.types.design.framework.link.mode2.handler.ILogicHandler;
 import com.sirius.types.enums.ActivityStatusEnumVO;
 import com.sirius.types.enums.ResponseCode;

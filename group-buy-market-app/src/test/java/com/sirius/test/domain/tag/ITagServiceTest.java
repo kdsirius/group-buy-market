@@ -36,6 +36,14 @@ public class ITagServiceTest {
         RBitSet bitSet = redisService.getBitSet("RQ_KJHKL98UU78H66554GFDV");
         // 是否存在
         log.info("xfg01 存在，预期结果为 true，测试结果:{}", bitSet.get(redisService.getIndexFromUserId("xfg01")));
+        log.info("xfg02 存在，预期结果为 true，测试结果:{}", bitSet.get(redisService.getIndexFromUserId("xfg02")));
+        log.info("xfg03 存在，预期结果为 true，测试结果:{}", bitSet.get(redisService.getIndexFromUserId("xfg03")));
+        log.info("xfg04 存在，预期结果为 true，测试结果:{}", bitSet.get(redisService.getIndexFromUserId("xfg04")));
+        log.info("xfg05 存在，预期结果为 true，测试结果:{}", bitSet.get(redisService.getIndexFromUserId("xfg05")));
+        log.info("xfg06 存在，预期结果为 true，测试结果:{}", bitSet.get(redisService.getIndexFromUserId("xfg06")));
+        log.info("xfg07 存在，预期结果为 true，测试结果:{}", bitSet.get(redisService.getIndexFromUserId("xfg07")));
+        log.info("xfg08 存在，预期结果为 true，测试结果:{}", bitSet.get(redisService.getIndexFromUserId("xfg08")));
+        log.info("xfg09 存在，预期结果为 true，测试结果:{}", bitSet.get(redisService.getIndexFromUserId("xfg09")));
         log.info("gudebai 不存在，预期结果为 false，测试结果:{}", bitSet.get(redisService.getIndexFromUserId("gudebai")));
     }
 

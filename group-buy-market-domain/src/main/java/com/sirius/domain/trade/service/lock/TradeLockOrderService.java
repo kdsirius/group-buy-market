@@ -1,10 +1,11 @@
-package com.sirius.domain.trade.service;
+package com.sirius.domain.trade.service.lock;
 
 import com.sirius.domain.trade.adapter.repository.ITradeRepository;
 import com.sirius.domain.trade.model.aggregate.GroupBuyOrderAggregate;
 import com.sirius.domain.trade.model.entity.*;
 import com.sirius.domain.trade.model.valobj.GroupBuyProgressVO;
-import com.sirius.domain.trade.service.factory.TradeRuleFilterFactory;
+import com.sirius.domain.trade.service.ITradeLockOrderService;
+import com.sirius.domain.trade.service.lock.factory.TradeRuleFilterFactory;
 import com.sirius.types.design.framework.link.mode2.chain.BusinessLinkedList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Service
-public class TradeOrderService implements ITradeOrderService {
+public class TradeLockOrderService implements ITradeLockOrderService {
     @Resource
     private ITradeRepository repository;
 

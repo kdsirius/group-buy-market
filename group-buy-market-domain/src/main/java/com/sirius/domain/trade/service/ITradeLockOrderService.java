@@ -11,7 +11,7 @@ import com.sirius.domain.trade.model.valobj.GroupBuyProgressVO;
  * @description 交易订单服务接口
  * @date 2026年09月22日 16:45
  */
-public interface ITradeOrderService {
+public interface ITradeLockOrderService {
 
     /**
      * 查询，未被支付消费完成的营销优惠订单

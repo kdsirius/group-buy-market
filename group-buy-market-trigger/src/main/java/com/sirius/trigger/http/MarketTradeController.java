@@ -14,7 +14,7 @@ import com.sirius.domain.trade.model.entity.PayActivityEntity;
 import com.sirius.domain.trade.model.entity.PayDiscountEntity;
 import com.sirius.domain.trade.model.entity.UserEntity;
 import com.sirius.domain.trade.model.valobj.GroupBuyProgressVO;
-import com.sirius.domain.trade.service.ITradeOrderService;
+import com.sirius.domain.trade.service.ITradeLockOrderService;
 import com.sirius.types.enums.ResponseCode;
 import com.sirius.types.exception.AppException;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ public class MarketTradeController implements IMarketTradeService {
     private IIndexGroupBuyMarketService indexGroupBuyMarketService;
 
     @Resource
-    private ITradeOrderService tradeOrderService;
+    private ITradeLockOrderService tradeOrderService;
 
     /**
      * 拼团营销锁单
