@@ -77,4 +77,5 @@ public class TagRepository implements ITagRepository {
         crowdTagsReq.setStatistics(count);
         crowdTagsDao.updateCrowdTagsStatistics(crowdTagsReq);
     }
+
 }

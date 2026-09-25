@@ -1,6 +1,7 @@
 package com.sirius.domain.trade.adapter.repository;
 
 import com.sirius.domain.trade.model.aggregate.GroupBuyOrderAggregate;
+import com.sirius.domain.trade.model.entity.GroupBuyActivityEntity;
 import com.sirius.domain.trade.model.entity.MarketPayOrderEntity;
 import com.sirius.domain.trade.model.valobj.GroupBuyProgressVO;
 
@@ -17,4 +18,7 @@ public interface ITradeRepository {
 
     GroupBuyProgressVO queryGroupBuyProgress(String teamId);
 
+    GroupBuyActivityEntity queryGroupBuyActivityEntityByActivityId(Long activityId);
+
+    Integer queryOrderCountByActivityId(Long activityId, String userId);
 }

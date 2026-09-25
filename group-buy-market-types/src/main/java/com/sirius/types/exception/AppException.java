@@ -21,6 +21,7 @@ public class AppException extends RuntimeException {
     }
 
     public AppException(ResponseCode responseCode) {
+        super(responseCode.getInfo());
         this.code = responseCode.getCode();
         this.info = responseCode.getInfo();
     }
@@ -44,7 +45,7 @@ public class AppException extends RuntimeException {
 
     @Override
     public String toString() {
-        return "com.sirius.x.api.types.exception.XApiException{" +
+        return "com.sirius.types.api.types.exception.AppException{" +
                 "code='" + code + '\'' +
                 ", info='" + info + '\'' +
                 '}';

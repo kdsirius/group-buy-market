@@ -17,6 +17,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TrialBalanceEntity {
+
     /** 商品ID */
     private String goodsId;
     /** 商品名称 */
@@ -25,6 +26,8 @@ public class TrialBalanceEntity {
     private BigDecimal originalPrice;
     /** 折扣价格 */
     private BigDecimal deductionPrice;
+    /** 支付价格 */
+    private BigDecimal payPrice;
     /** 拼团目标数量 */
     private Integer targetCount;
     /** 拼团开始时间 */

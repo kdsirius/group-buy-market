@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -43,9 +44,14 @@ public class MarketTradeController implements IMarketTradeService {
     @Resource
     private ITradeOrderService tradeOrderService;
 
+    /**
+     * 拼团营销锁单
+     */
+    @RequestMapping(value = "lock_market_pay_order", method = RequestMethod.POST)
+    @Override
     public Response<LockMarketPayOrderResponseDTO> lockMarketPayOrder(LockMarketPayOrderRequestDTO lockMarketPayOrderRequestDTO) {
         try {
-            // 参数
+            // 获取参数
             String userId = lockMarketPayOrderRequestDTO.getUserId();
             String teamId = lockMarketPayOrderRequestDTO.getTeamId();
             Long activityId = lockMarketPayOrderRequestDTO.getActivityId();
@@ -56,7 +62,8 @@ public class MarketTradeController implements IMarketTradeService {
 
             log.info("营销交易锁单:{} LockMarketPayOrderRequestDTO:{}", userId, JSON.toJSONString(lockMarketPayOrderRequestDTO));
 
-            if (StringUtils.isBlank(userId) || StringUtils.isBlank(source)
+            // 校验参数是否为空
+            if (StringUtils.isBlank(userId) || StringUtils.isBlank(source) || StringUtils.isBlank(outTradeNo)
                     || StringUtils.isBlank(channel) || StringUtils.isBlank(goodsId) || null == activityId) {
                 return Response.<LockMarketPayOrderResponseDTO>builder()
                         .code(ResponseCode.ILLEGAL_PARAMETER.getCode())
@@ -102,6 +109,14 @@ public class MarketTradeController implements IMarketTradeService {
                     .channel(channel)
                     .build());
 
+            // 人群限定
+            if (!trialBalanceEntity.getIsVisible() || !trialBalanceEntity.getIsEnable()) {
+                return Response.<LockMarketPayOrderResponseDTO>builder()
+                        .code(ResponseCode.E0007.getCode())
+                        .info(ResponseCode.E0007.getInfo())
+                        .build();
+            }
+
             GroupBuyActivityDiscountVO groupBuyActivityDiscountVO = trialBalanceEntity.getGroupBuyActivityDiscountVO();
 
             // 锁单
@@ -122,6 +137,7 @@ public class MarketTradeController implements IMarketTradeService {
                             .goodsName(trialBalanceEntity.getGoodsName())
                             .originalPrice(trialBalanceEntity.getOriginalPrice())
                             .deductionPrice(trialBalanceEntity.getDeductionPrice())
+                            .payPrice(trialBalanceEntity.getPayPrice())
                             .outTradeNo(outTradeNo)
                             .build()
             );
