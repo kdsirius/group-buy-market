@@ -1,8 +1,8 @@
 # 教程章节 ↔ 代码分支对照表
 
-- 营销工程：`reference/group-buy-market`（已拉取 42 个本地分支）
-- 小商城工程：`gitcode.net/KnowledgePlanet/s-pay-mall-ddd-market`（**尚未拉取**）
-- 分支状态以 `reference/group-buy-market` 的 `origin` 为准。
+- 营销工程：`reference/group-buy-market`（42 个本地分支）
+- 小商城工程：`reference/s-pay-mall-ddd-market`（11 个本地分支）
+- 两个目录都在父仓库 `.gitignore` 中，互不干扰。
 
 ## 按作者学习序号
 
@@ -78,3 +78,18 @@
   - `2-16` 分支不是接在 2-15 的同一链上，而是基于 `tag-v1.0`（含 3-1/3-2）之后继续开发。
   - `2-19` 分支额外包含一次 `MarketNode2CompletableFuture` 重构提交。
 - 3-3 ~ 3-8 的主战场是小商城工程，营销工程只有少量对接改动，学习时两个仓库要同时切到对应分支。
+
+## 小商城工程分支说明
+
+- 分支：`2-16-250208-xfg-rabbitmq`、`2-18-xfg-mq-consumer`、`3-3` ~ `3-8`、`tag-v2.0`、`tag-v3.0`、`master`。
+- `master` 已合并到 3-8，含 2-18 的 MQ 消费改造，是最完整的版本。
+- `2-18` 分支基于 3-6 之后，说明作者是在小商城侧完成后半程开发再回头补 MQ 章节，分支时间线不等于学习序号。
+- `2-16` 是小商城侧的 MQ 引入基线，营销工程的 2-16 与它对应。
+
+### 切换示例
+
+```bash
+# 学习 2-18：两个仓库各切各的
+git -C reference/group-buy-market      switch 2-19-xfg-redis-lock
+git -C reference/s-pay-mall-ddd-market switch 2-18-xfg-mq-consumer
+```
