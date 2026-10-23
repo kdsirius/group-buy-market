@@ -23,7 +23,7 @@ public abstract class AbstractGroupBuyMarketSupport extends AbstractMultiThreadS
     protected IActivityRepository repository;
 
     @Override
-    protected void MultiThread(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws ExecutionException, InterruptedException, TimeoutException {
+    protected void multiThread(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws ExecutionException, InterruptedException, TimeoutException {
         //缺省的方法
     }
 }
