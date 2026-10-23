@@ -86,10 +86,46 @@
 - `2-18` 分支基于 3-6 之后，说明作者是在小商城侧完成后半程开发再回头补 MQ 章节，分支时间线不等于学习序号。
 - `2-16` 是小商城侧的 MQ 引入基线，营销工程的 2-16 与它对应。
 
-### 切换示例
+## 对照学习工作流
+
+原文在 `docs/orgin-tutorial/`，代码在 `reference/`，两者配合使用。
+
+**1. 查本节在哪**
+从上面的表按学习序号找到分支；再打开 `docs/orgin-tutorial/AGENTS.md` 找到对应原文文件。
+
+**2. 看本节改了什么**
+相邻两分支做 diff 就是本节的增量，不必通读整个工程：
 
 ```bash
-# 学习 2-18：两个仓库各切各的
-git -C reference/group-buy-market      switch 2-19-xfg-redis-lock
-git -C reference/s-pay-mall-ddd-market switch 2-18-xfg-mq-consumer
+cd reference/group-buy-market
+git diff 2-11-250125-xfg-trade-rule-link 2-12-250128-xfg-trade-settlement --stat
+git diff 2-11-250125-xfg-trade-rule-link 2-12-250128-xfg-trade-settlement -- <单个文件>
 ```
+
+**3. 读某文件的完整内容（不切分支）**
+
+```bash
+git show 2-12-250128-xfg-trade-settlement:path/to/File.java
+```
+
+**4. 需要运行 / 在 IDE 里跟读时才切分支**
+
+```bash
+git -C reference/group-buy-market switch 2-12-250128-xfg-trade-settlement
+```
+
+两个仓库互不影响，3-3 之后可分别停在不同节的分支上。
+
+**5. 更新参考仓库**
+
+```bash
+git -C reference/group-buy-market      fetch --all --prune
+git -C reference/s-pay-mall-ddd-market fetch --all --prune
+```
+
+## 学习时容易踩的坑
+
+- 分支名里的日期是**作者提交日期**，不是课程顺序（例如 `2-15-250203` 早于 `3-1-250202` 之后的 `2-16-250208`）。判断先后看学习序号表。
+- 3-3 ~ 3-8 的操作主要在**小商城仓库**，只切营销仓库会看不到本节主体改动。
+- `2-18` 的分支在小商城仓库，营销仓库没有；`2-25` 无新增代码。
+- 部署类章节（21–24、28、48）不影响业务代码，`tag-v1.0/v2.0/v3.0` 是三个阶段的整体快照，可用于回看整体形态。
