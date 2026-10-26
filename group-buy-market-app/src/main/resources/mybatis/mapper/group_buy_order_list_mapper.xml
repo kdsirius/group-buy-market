@@ -20,6 +20,7 @@
         <result column="biz_id" property="bizId"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
+        <result column="out_trade_time" property="outTradeTime"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.sirius.infrastructure.dao.po.GroupBuyOrderList">
@@ -52,7 +53,7 @@
 
     <update id="updateOrderListStatus2COMPLETE" parameterType="com.sirius.infrastructure.dao.po.GroupBuyOrderList">
         update group_buy_order_list
-        set status = 1, update_time = now()
+        set status = 1,out_trade_time = #{outTradeTime}, update_time = now()
         where out_trade_no = #{outTradeNo} and user_id = #{userId}
     </update>
 

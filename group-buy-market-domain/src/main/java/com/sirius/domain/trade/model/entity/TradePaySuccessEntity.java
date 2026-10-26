@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 /**
  * @author Sirius
  * @description 交易支付成功实体
@@ -24,5 +26,7 @@ public class TradePaySuccessEntity {
     private String userId;
     /** 外部交易单号 */
     private String outTradeNo;
+    /** 外部支付完成时间 */
+    private Date outTradeTime;
 
 }

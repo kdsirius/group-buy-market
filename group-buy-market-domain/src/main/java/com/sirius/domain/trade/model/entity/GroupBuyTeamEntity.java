@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 /**
  * @author Sirius
  * @description 拼团组队实体对象
@@ -29,5 +31,9 @@ public class GroupBuyTeamEntity {
     private Integer lockCount;
     /** 状态（0-拼单中、1-完成、2-失败） */
     private GroupBuyOrderEnumVO status;
+    /** 开团时保存的团有效开始时间 */
+    private Date validStartTime;
+    /** 开团时保存的团有效结束时间 */
+    private Date validEndTime;
 
 }

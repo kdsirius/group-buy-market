@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
+import java.util.Date;
 
 /**
  * @author Sirius
@@ -24,13 +25,15 @@ public class ITradeSettlementOrderServiceTest {
 
     @Resource
     private ITradeSettlementOrderService tradeSettlementOrderService;
+
     @Test
-    public void test_settlementMarketPayOrder(){
+    public void test_settlementMarketPayOrder() throws Exception {
         TradePaySuccessEntity tradePaySuccessEntity = new TradePaySuccessEntity();
         tradePaySuccessEntity.setSource("s01");
         tradePaySuccessEntity.setChannel("c01");
-        tradePaySuccessEntity.setUserId("xfg02");
-        tradePaySuccessEntity.setOutTradeNo("909000098113");
+        tradePaySuccessEntity.setUserId("xfg09");
+        tradePaySuccessEntity.setOutTradeNo("909000098117");
+        tradePaySuccessEntity.setOutTradeTime(new Date());
 
         TradePaySettlementEntity tradePaySettlementEntity = tradeSettlementOrderService.settlementMarketPayOrder(tradePaySuccessEntity);
 

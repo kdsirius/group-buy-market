@@ -5,20 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author Sirius
- * @description 拼团交易命令实体
- * @date 2026年09月24日 19:06
- */
+import java.util.Date;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TradeRuleCommandEntity {
-
-    /** 用户Id */
+public class TradeSettlementRuleCommandEntity {
+    private String source;
+    private String channel;
     private String userId;
-    /** 活动Id */
-    private Long activityId;
-
+    private String outTradeNo;
+    private Date outTradeTime;
 }

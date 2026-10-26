@@ -1,8 +1,8 @@
 package com.sirius.domain.trade.service.lock.factory;
 
 import com.sirius.domain.trade.model.entity.GroupBuyActivityEntity;
-import com.sirius.domain.trade.model.entity.TradeRuleCommandEntity;
-import com.sirius.domain.trade.model.entity.TradeRuleFilterBackEntity;
+import com.sirius.domain.trade.model.entity.TradeLockRuleCommandEntity;
+import com.sirius.domain.trade.model.entity.TradeLockRuleFilterBackEntity;
 import com.sirius.domain.trade.service.lock.filter.ActivityUsabilityRuleFilter;
 import com.sirius.domain.trade.service.lock.filter.UserTakeLimitRuleFilter;
 import com.sirius.types.design.framework.link.mode2.LinkArmory;
@@ -22,12 +22,12 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-public class TradeRuleFilterFactory {
-    @Bean("tradeRuleFilter")
-    public BusinessLinkedList<TradeRuleCommandEntity, DynamicContext, TradeRuleFilterBackEntity>
+public class TradeLockRuleFilterFactory {
+    @Bean("tradeLockRuleFilter")
+    public BusinessLinkedList<TradeLockRuleCommandEntity, DynamicContext, TradeLockRuleFilterBackEntity>
     tradeRuleFiler(ActivityUsabilityRuleFilter activityUsabilityRuleFilter, UserTakeLimitRuleFilter userTakeLimitRuleFilter) {
         return new LinkArmory<>(
-                "交易规则过滤链",
+                "交易锁单规则过滤链",
                 activityUsabilityRuleFilter,
                 userTakeLimitRuleFilter
         ).getLogicLink();

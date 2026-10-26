@@ -56,6 +56,7 @@ public class GroupBuyOrderList implements Serializable {
     private Date createTime;
     /** 更新时间 */
     private Date updateTime;
-
+    /** 外部支付完成时间 */
+    private Date outTradeTime;
 
 }

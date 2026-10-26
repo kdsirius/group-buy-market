@@ -7,6 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -24,6 +26,15 @@ public class ApiTest {
         String[] split = testStr.split(",");
         System.out.println(Arrays.toString(split));
         System.out.println(split.length);
+    }
+
+    @Test
+    public void test_time(){
+        Date validStartTime = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(validStartTime);
+        calendar.add(Calendar.MINUTE,10);
+        System.out.println(calendar.getTime());
     }
 
 }

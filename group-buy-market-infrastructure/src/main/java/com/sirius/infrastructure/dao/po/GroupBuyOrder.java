@@ -50,6 +50,9 @@ public class GroupBuyOrder implements Serializable {
     private Date createTime;
     /** 更新时间 */
     private Date updateTime;
-
+    /** 开团时保存的团有效开始时间 */
+    private Date validStartTime;
+    /** 开团时保存的团有效结束时间 */
+    private Date validEndTime;
 
 }
