@@ -21,4 +21,6 @@ public class TradeSettlementRuleFilterBackEntity {
     private GroupBuyOrderEnumVO status;
     private Date validStartTime;
     private Date validEndTime;
+    /** 开团时约定的通知地址。 */
+    private String notifyUrl;
 }

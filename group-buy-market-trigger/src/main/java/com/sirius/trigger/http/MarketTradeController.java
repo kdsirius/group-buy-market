@@ -59,6 +59,7 @@ public class MarketTradeController implements IMarketTradeService {
             String source = lockMarketPayOrderRequestDTO.getSource();
             String channel = lockMarketPayOrderRequestDTO.getChannel();
             String outTradeNo = lockMarketPayOrderRequestDTO.getOutTradeNo();
+            String notifyUrl = lockMarketPayOrderRequestDTO.getNotifyUrl();
 
             log.info("营销交易锁单:{} LockMarketPayOrderRequestDTO:{}", userId, JSON.toJSONString(lockMarketPayOrderRequestDTO));
 
@@ -140,6 +141,7 @@ public class MarketTradeController implements IMarketTradeService {
                             .deductionPrice(trialBalanceEntity.getDeductionPrice())
                             .payPrice(trialBalanceEntity.getPayPrice())
                             .outTradeNo(outTradeNo)
+                            .notifyUrl(notifyUrl)
                             .build()
             );
             log.info("交易锁单记录(新):{} marketPayOrderEntity:{}", userId, JSON.toJSONString(marketPayOrderEntity));

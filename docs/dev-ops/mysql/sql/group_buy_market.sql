@@ -201,9 +201,10 @@ CREATE TABLE `group_buy_order` (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `valid_start_time` datetime DEFAULT NULL COMMENT '团有效开始时间',
   `valid_end_time` datetime DEFAULT NULL COMMENT '团有效结束时间',
+  `notify_url` varchar(255) DEFAULT NULL COMMENT '拼团完成回调地址',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_team_id` (`team_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -212,7 +213,7 @@ CREATE TABLE `group_buy_order` (
 
 LOCK TABLES `group_buy_order` WRITE;
 /*!40000 ALTER TABLE `group_buy_order` DISABLE KEYS */;
-INSERT INTO `group_buy_order` VALUES (22,'60985176',100123,'s01','c01',100.00,10.00,90.00,3,1,1,0,'2026-10-25 21:10:25','2026-10-25 21:12:30','2026-10-25 21:10:26','2026-10-25 21:25:26');
+INSERT INTO `group_buy_order` VALUES (25,'19937138',100123,'s01','c01',100.00,10.00,90.00,3,3,3,1,'2026-10-27 17:13:07','2026-10-27 17:15:41','2026-10-27 17:13:08','2026-10-27 17:28:08','http://127.0.0.1:8091/api/v1/test/group_buy_notify');
 /*!40000 ALTER TABLE `group_buy_order` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -245,7 +246,7 @@ CREATE TABLE `group_buy_order_list` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_order_id` (`order_id`),
   KEY `idx_user_id_activity_id` (`user_id`,`activity_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -254,7 +255,7 @@ CREATE TABLE `group_buy_order_list` (
 
 LOCK TABLES `group_buy_order_list` WRITE;
 /*!40000 ALTER TABLE `group_buy_order_list` DISABLE KEYS */;
-INSERT INTO `group_buy_order_list` VALUES (31,'xfg09','60985176','689789777289',100123,'2026-07-07 10:19:40','2026-12-07 10:19:40','9890001','s01','c01',100.00,10.00,1,'909000098117','100123_xfg09_1','2026-10-25 21:10:25','2026-10-25 21:12:30','2026-10-25 21:12:30');
+INSERT INTO `group_buy_order_list` VALUES (38,'xfg01','19937138','846124928492',100123,'2026-07-07 10:19:40','2026-12-07 10:19:40','9890001','s01','c01',100.00,10.00,1,'909000098119','100123_xfg01_1','2026-10-27 17:13:07','2026-10-27 17:15:41','2026-10-27 17:15:41'),(39,'xfg02','19937138','885679317715',100123,'2026-07-07 10:19:40','2026-12-07 10:19:40','9890001','s01','c01',100.00,10.00,1,'909000098118','100123_xfg02_1','2026-10-27 17:13:40','2026-10-27 17:14:43','2026-10-27 17:14:43'),(40,'xfg03','19937138','767869133297',100123,'2026-07-07 10:19:40','2026-12-07 10:19:40','9890001','s01','c01',100.00,10.00,1,'909000098117','100123_xfg03_1','2026-10-27 17:14:03','2026-10-27 17:15:12','2026-10-27 17:15:12');
 /*!40000 ALTER TABLE `group_buy_order_list` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -276,7 +277,7 @@ CREATE TABLE `notify_task` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -285,7 +286,7 @@ CREATE TABLE `notify_task` (
 
 LOCK TABLES `notify_task` WRITE;
 /*!40000 ALTER TABLE `notify_task` DISABLE KEYS */;
-INSERT INTO `notify_task` VALUES (1,100123,'46832479','暂无',0,0,'{\"teamId\":\"46832479\",\"outTradeNoList\":[\"581909866926\",\"155123092895\",\"451517755304\"]}','2025-01-26 19:11:46','2025-01-26 19:11:46'),(2,100123,'26482544','暂无',0,0,'{\"teamId\":\"26482544\",\"outTradeNoList\":[\"909000098111\",\"909000098112\",\"909000098113\"]}','2026-09-25 16:46:58','2026-09-25 16:46:58');
+INSERT INTO `notify_task` VALUES (5,100123,'19937138','http://127.0.0.1:8091/api/v1/test/group_buy_notify',5,1,'{\"teamId\":\"19937138\",\"outTradeNoList\":[\"909000098119\",\"909000098118\",\"909000098117\"]}','2026-10-27 17:15:41','2026-10-27 17:25:41');
 /*!40000 ALTER TABLE `notify_task` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -315,7 +316,6 @@ CREATE TABLE `sc_sku_activity` (
 
 LOCK TABLES `sc_sku_activity` WRITE;
 /*!40000 ALTER TABLE `sc_sku_activity` DISABLE KEYS */;
-INSERT INTO `sc_sku_activity` VALUES (1,'s01','c01',100123,'9890001','2025-01-01 13:15:54','2025-01-01 13:15:54');
 /*!40000 ALTER TABLE `sc_sku_activity` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -358,4 +358,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-10-26  9:20:43
+-- Dump completed on 2026-10-27 17:26:31

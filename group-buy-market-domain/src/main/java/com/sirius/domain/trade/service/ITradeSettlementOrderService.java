@@ -3,6 +3,8 @@ package com.sirius.domain.trade.service;
 import com.sirius.domain.trade.model.entity.TradePaySettlementEntity;
 import com.sirius.domain.trade.model.entity.TradePaySuccessEntity;
 
+import java.util.Map;
+
 /**
  * @author Sirius
  * @description 拼团交易结算服务接口
@@ -19,5 +21,7 @@ public interface ITradeSettlementOrderService {
      */
     TradePaySettlementEntity settlementMarketPayOrder(TradePaySuccessEntity tradePaySuccessEntity) throws Exception;
 
+    Map<String, Integer> execSettlementNotifyJob() throws Exception;
 
+    Map<String, Integer> execSettlementNotifyJob(String teamId) throws Exception;
 }

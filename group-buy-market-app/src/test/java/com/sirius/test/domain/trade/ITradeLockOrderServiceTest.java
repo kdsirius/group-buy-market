@@ -38,7 +38,7 @@ public class ITradeLockOrderServiceTest {
     public void test_lockMarketPayOrder() throws Exception {
         // 入参信息
         Long activityId = 100123L;
-        String userId = "xfg09";
+        String userId = "xfg03";
         String goodsId = "9890001";
         String source = "s01";
         String channel = "c01";
@@ -66,7 +66,7 @@ public class ITradeLockOrderServiceTest {
         MarketPayOrderEntity marketPayOrderEntityNew = tradeOrderService.lockMarketPayOrder(
                 UserEntity.builder().userId(userId).build(),
                 PayActivityEntity.builder()
-                        .teamId(null)
+                        .teamId("19937138")
                         .activityId(groupBuyActivityDiscountVO.getActivityId())
                         .activityName(groupBuyActivityDiscountVO.getActivityName())
                         .startTime(groupBuyActivityDiscountVO.getStartTime())
@@ -83,6 +83,7 @@ public class ITradeLockOrderServiceTest {
                         .deductionPrice(trialBalanceEntity.getDeductionPrice())
                         .payPrice(trialBalanceEntity.getPayPrice())
                         .outTradeNo(outTradeNo)
+                        .notifyUrl("http://127.0.0.1:8091/api/v1/test/group_buy_notify")
                         .build());
 
         log.info("测试结果(New):{}",JSON.toJSONString(marketPayOrderEntityNew));
