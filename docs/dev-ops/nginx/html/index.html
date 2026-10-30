@@ -21,64 +21,29 @@
 <div class="product-info">
   <h1 class="product-title">手写MyBatis：渐进式源码实践（全彩）</h1>
   <span class="promotion-tag">大促优惠</span>
-  <span class="promotion-text">直降 ¥60，76人再抢，参与马上抢到</span>
+  <span class="promotion-text"></span>
+  <p id="pageError" class="error-message"></p>
 </div>
 
-<!-- 修改后的拼单列表结构 -->
-<div class="group-list">
-  <div class="group-item">
-    <div>
-      <div class="user-info">小傅哥</div>
-      <div class="group-status">
-        <span>组队仅剩1人，拼单即将结束</span>
-        <span class="countdown">00:05:49</span>
-      </div>
-    </div>
-    <div class="right">
-      <button class="group-btn" data-price="40">参与拼团</button>
-    </div>
-  </div>
-  <div class="group-item">
-    <div>
-      <div class="user-info">李二狗</div>
-      <div class="group-status">
-        <span>组队仅剩2人，拼单即将结束</span>
-        <span class="countdown">00:05:49</span>
-      </div>
-    </div>
-    <div class="right">
-      <button class="group-btn" data-price="40">参与拼团</button>
-    </div>
-  </div>
-  <div class="group-item">
-    <div>
-      <div class="user-info">张冰嘎</div>
-      <div class="group-status">
-        <span>组队仅剩1人，拼单即将结束</span>
-        <span class="countdown">00:05:49</span>
-      </div>
-    </div>
-    <div class="right">
-      <button class="group-btn" data-price="40">参与拼团</button>
-    </div>
-  </div>
-</div>
+<!-- 后端返回 teamList 后，由 index.js 动态生成团卡片。 -->
+<div class="group-list"></div>
 
 <!-- 空白区域 -->
 <div class="area"></div>
 
 <!-- 底部操作栏 -->
 <div class="action-bar">
-  <button class="action-btn buy-alone" data-price="100">单独购买(￥100)</button>
-  <button class="action-btn group-buy" data-price="40">开团购买(￥40)</button>
+  <button class="action-btn buy-alone">单独购买</button>
+  <button class="action-btn group-buy">开团购买</button>
 </div>
 
 <!-- 支付弹窗 -->
 <div id="paymentModal" class="modal">
   <div class="modal-content">
-    <h2>模拟支付（不扣款）</h2>
-    <p id="paymentAmount"></p>
-    <p>本节只演示交互，没有支付二维码，也不会创建或结算订单。</p>
+  <h2>模拟支付（不扣款）</h2>
+  <p id="paymentAmount"></p>
+  <p id="outTradeNo"></p>
+  <p>本节只演示交互，支付完成会调用结算接口。</p>
     <div class="button-group">
       <button id="cancelPayment">取消支付</button>
       <button id="completePayment">完成演示</button>

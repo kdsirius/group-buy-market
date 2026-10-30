@@ -1,187 +1,246 @@
-# 20 / 3-2：让拼团页面真正使用后端数据
+# 20 / 3-2：前端接上后端接口
 
-> 2-15 已经提供首页查询、锁单和结算接口；本节把静态页面中的写死数据替换为接口数据。前端由 AI 实现，你只需要看关键请求、响应映射和真实浏览器结果。
+> 2-15 已经做出首页查询和结算接口。本节把页面里写死的商品、团和价格替换成接口数据，并把“开团/参团 → 锁单 → 模拟支付 → 结算”的请求串起来。
+>
+> 对应[原文第 20 节](../orgin-tutorial/3.第3部分：外部对接「静态页面」/20-3-2-DeepSeek处理UI与接口对接.md)，参考分支 `3-2-250203-xfg-ui-2-interface`。**前端由 AI 实现**，你读关键代码、按本文复验即可，不要求手敲样式；后端 Java 不改。
 
-## 0. 本节边界
+## 0. 本节要解决的问题
 
-本节只改 `docs/dev-ops/nginx/html/index.html` 和 `js/index.js`：
+上一节页面的价格、团、人数都是 HTML 里写死的。运营改了活动或价格，页面不会变；团已经过期，页面却还在展示。这叫**假数据页面**。
 
-```text
-打开页面
-  → 读取模拟登录 Cookie
-  → POST 首页接口
-  → 用 goods / teamList / teamStatistic 渲染页面
-  → 点击参团/开团
-  → POST 锁单
-  → 点击完成支付
-  → POST 结算
-  → 刷新页面重新查询
-```
-
-```mermaid
-sequenceDiagram
-    participant B as 浏览器页面
-    participant I as MarketIndexController
-    participant A as IndexGroupBuyMarketServiceImpl
-    participant R as ActivityRepository
-    participant T as MarketTradeController
-    participant D as TradeSettlementOrderService
-    participant DB as MySQL
-
-    B->>I: POST 首页请求(userId/source/channel/goodsId)
-    I->>A: 试算 + 查询团 + 统计
-    A->>R: 查询可展示团和统计
-    R->>DB: SQL
-    DB-->>R: 商品/团/统计数据
-    R-->>I: GoodsMarketResponseDTO
-    I-->>B: JSON
-    B->>T: POST 锁单
-    T-->>B: team/order结果
-    B->>T: POST 结算(outTradeNo/outTradeTime)
-    T->>D: 结算规则与事务
-    D-->>B: 结算结果
-    B->>I: 刷新后重新查询
-```
-
-图中第一个箭头是“页面展示数据从哪里来”；锁单和结算是两次不同请求，不能把“弹窗显示”当作已锁单，也不能把“点击按钮”当作已结算。
-
-## 1. 你只需要看三段前端代码
-
-### 1.1 首页请求：把页面输入变成 JSON
-
-关键位置：`index.js` 的 `fetch('/api/v1/gbm/index/query_group_buy_market_config')`。
-
-```javascript
-fetch(baseUrl + '/api/v1/gbm/index/query_group_buy_market_config', {
-  method: 'POST',
-  headers: {'Content-Type': 'application/json'},
-  body: JSON.stringify({
-    userId,
-    source: 's01',
-    channel: 'c01',
-    goodsId: '9890001'
-  })
-})
-```
-
-这四个字段对应 `GoodsMarketRequestDTO`，不是随便拼出的页面参数。响应的外层 `code` 先判断，再读取 `data`：
-
-```javascript
-const {goods, teamList, teamStatistic} = response.data
-```
-
-### 1.2 响应映射：后端字段进入页面
-
-```javascript
-promotionText.textContent =
-  `直降 ¥${goods.deductionPrice.toFixed(0)}，` +
-  `${teamStatistic.allTeamUserCount}人再抢，参与马上抢到`
-
-const remaining = team.targetCount - team.lockCount
-```
-
-这里的 `remaining` 不是后端新字段，而是前端根据两个后端字段计算的展示值。金额来自接口，不再信任 HTML 里原来的 `data-price="40"`。
-
-页面分层关系：
+本节让页面变成“后端怎么说，页面怎么显示”：
 
 ```mermaid
 flowchart TD
-    J[Response.data] --> G[goods]
-    J --> L[teamList]
-    J --> S[teamStatistic]
-    G --> P[价格与优惠文案]
-    L --> C[拼团卡片与倒计时]
-    S --> H[“多少人再抢”]
+    A["打开 index.html"] --> B{"浏览器有模拟用户名吗"}
+    B -- 没有 --> C["跳 login.html"]
+    B -- 有 --> D["POST 首页查询接口"]
+    D --> E{"响应 code 是 0000 吗"}
+    E -- 否 --> F["显示错误，保留当前页面"]
+    E -- 是 --> G["渲染商品价格、团列表、统计"]
+    G --> H{"点击开团或参团"}
+    H --> I["POST 锁单接口"]
+    I --> J{"锁单成功吗"}
+    J -- 否 --> F
+    J -- 是 --> K["弹窗展示模拟支付和交易号"]
+    K --> L["点击完成演示"]
+    L --> M["POST 结算接口"]
+    M --> N{"结算成功吗"}
+    N -- 是 --> O["刷新页面，重新查首页"]
+    N -- 否 --> F
 ```
 
-白话：后端不是返回一整段 HTML，而是返回结构化数据；前端把不同对象放到不同区域。这样换商品或团数据时不用改页面骨架。
+**怎么读这张图：** 只有 `0000` 才往下一步走。页面显示成功不等于后端成功，前端必须先判断响应里的业务码。
 
-### 1.3 结算请求：点击完成才通知后端
+**本节不做：** 真实支付、二维码、扫码验签、真实登录鉴权。按钮叫“完成演示”，点击后只调用结算接口，不产生真实扣款。
+
+## 1. 文件改了什么
+
+| 文件 | 作用 |
+| --- | --- |
+| `docs/dev-ops/nginx/html/index.html` | 删掉写死的团卡片和价格；增加错误提示位、交易号展示位 |
+| `docs/dev-ops/nginx/html/js/index.js` | 请求首页、渲染、锁单、结算、错误处理 |
+| `docs/dev-ops/nginx/html/login.html` | 上一节已改成模拟登录，本节不重复 |
+
+后端接口地址固定为：
 
 ```javascript
-fetch(baseUrl + '/api/v1/gbm/trade/settlement_market_pay_order', {
+const BASE_URL = 'http://127.0.0.1:8091'
+```
+
+页面通过 HTTP 打开，不能双击 `file://` 打开，否则请求和 Cookie 行为可能不一致。
+
+## 2. 只读三段关键代码
+
+### 2.1 首页请求：页面参数怎么变成 JSON
+
+```javascript
+const response = await fetch(`${BASE_URL}/api/v1/gbm/index/query_group_buy_market_config`, {
   method: 'POST',
   headers: {'Content-Type': 'application/json'},
-  body: JSON.stringify({
-    source: 's01',
-    channel: 'c01',
-    userId,
-    outTradeNo,
-    outTradeTime: new Date().getTime()
-  })
+  body: JSON.stringify({userId, source: SOURCE, channel: CHANNEL, goodsId: GOODS_ID})
+})
+const result = await response.json()
+if (result.code !== '0000') {
+  showPageError(`首页查询失败：${result.info || result.code}`)
+  return
+}
+renderMarketConfig(result.data, userId)
+```
+
+对应关系：
+
+| 前端字段 | 后端接收 | 用途 |
+| --- | --- | --- |
+| `userId` | `GoodsMarketRequestDTO.userId` | 查询是哪个用户在看 |
+| `source / channel` | 同名字段 | 营销渠道，也用于结算规则里的渠道校验 |
+| `goodsId` | 同名字段 | 查哪个商品的活动 |
+
+`fetch` 的 `response.json()` 只把响应体转成对象，**不会自动判断业务成功**；`HTTP 200` 也可能返回 `0002 / 0003` 这类业务错误，所以必须看 `result.code`。
+
+### 2.2 响应映射：哪个字段显示在哪里
+
+```javascript
+const {goods, teamList = [], teamStatistic} = data
+
+// 商品促销文案：优惠金额 + 统计人数
+promotionText.textContent =
+  `直降 ¥${goods.deductionPrice.toFixed(0)}，${teamStatistic.allTeamUserCount}人再抢，参与马上抢到`
+
+// 每个团还剩几人：目标人数 - 锁单人数
+const remaining = team.targetCount - team.lockCount
+```
+
+| 页面位置 | 后端字段 | 说明 |
+| --- | --- | --- |
+| “直降 ¥10” | `goods.deductionPrice` | 优惠金额，不是原价 |
+| “2人再抢” | `teamStatistic.allTeamUserCount` | 该活动的参团人数统计 |
+| 单独购买价格 | `goods.originalPrice` | 原价，这节课不发起单独购买锁单 |
+| 开团价格 | `goods.payPrice` | 拼团实付价 |
+| 剩余人数 | `targetCount - lockCount` | 前端计算，不在 DTO 里 |
+| 倒计时 | `validTimeCountdown` | 后端按截止时间算好 |
+| 空列表 | `teamList.length === 0` | 显示“赶紧去开团”，不显示 0 个团卡片 |
+
+这里有一个刻意保留的差异：其余用户的团不携带 `outTradeNo`，只有自己的团才保存交易号。**别人的外部单号没有必要暴露到页面上。**
+
+### 2.3 锁单与结算：`outTradeNo` 必须贯穿两次请求
+
+```javascript
+// 锁单：带着页面生成的模拟交易号
+body: JSON.stringify({
+  userId, teamId: teamId || null, activityId: 100123, goodsId: GOODS_ID,
+  source: SOURCE, channel: CHANNEL, outTradeNo,
+  notifyUrl: `${BASE_URL}/api/v1/test/group_buy_notify`
 })
 ```
 
-`outTradeNo` 必须来自刚才锁单成功的那笔交易；没有它不能把一个陌生订单当成已支付。`outTradeTime` 是本地模拟支付时间，真实系统应来自可信支付平台，不能相信浏览器自己报“我已付款”。
+锁单成功后：
 
-## 2. 我已实现的前端改动
-
-前端文件由 AI 按本节边界实现，不要求你手敲 CSS。实现规则：
-
-- 页面加载先检查模拟用户名；没有用户名回到 `login.html`。
-- 页面加载 POST 首页接口；接口失败显示明确提示，不把空数据伪装成成功。
-- `teamList` 为空显示“赶紧开团”的空状态；非空时动态生成团卡片。
-- 自己的团保留 `outTradeNo`，其他用户的卡片不把外部单号放到 DOM。
-- 开团或参团先 POST 锁单，成功后才显示模拟支付弹窗。
-- 完成演示才 POST 结算；成功后刷新首页，重新读取数据库结果。
-- 单独购买只保留页面演示，不把它当作拼团锁单。
-
-前端静态文件的修改不改变 Java 接口签名；真实数据口径仍由后端 DTO 和 Controller 决定。
-
-## 3. 真实验证：浏览器才是本节测试入口
-
-前提：Application 已启动在 `8091`，MySQL/Redis 可用，使用你自己的独立测试数据。不要运行全量测试包，不要在共享库里重复锁单。
-
-### 3.1 首页查询
-
-1. 用浏览器打开 `docs/dev-ops/nginx/html/index.html` 的 HTTP 地址。
-2. 没有模拟用户名时应跳登录页；输入测试用户后回到首页。
-3. F12 → Network，找到 `query_group_buy_market_config`。
-4. 检查 Request Payload 有 `userId/source/channel/goodsId`。
-5. 检查 Response：
-   - `code=0000` 才进入渲染；
-   - 商品价格来自 `data.goods`；
-   - `teamList=[]` 时显示空状态；
-   - 非空时显示团卡片，剩余人数等于 `targetCount-lockCount`；
-   - 统计文案来自 `teamStatistic.allTeamUserCount`。
-
-### 3.2 开团与结算
-
-1. 用一个未使用的测试用户和新外部单号点击“开团购买”。
-2. Network 中确认先出现 `lock_market_pay_order`，且响应成功后才出现支付弹窗。
-3. 点击“完成演示”，确认出现 `settlement_market_pay_order`，请求中 `outTradeNo` 与锁单请求一致。
-4. 结算成功后页面刷新，再观察首页请求和响应；团的 `completeCount` 应反映新的数据库状态。
-5. 断开后端或填错接口地址，确认页面显示失败提示；不能把网络失败刷新成成功。
-6. 输入空 `goodsId` 或空支付时间，确认后端返回 `0002`，页面不应伪造成功。
-
-```mermaid
-stateDiagram-v2
-    [*] --> 未登录
-    未登录 --> 首页查询: 登录Cookie存在
-    首页查询 --> 可购买: code=0000
-    首页查询 --> 页面报错: code!=0000/网络失败
-    可购买 --> 锁单中: 点击开团/参团
-    锁单中 --> 待模拟支付: 锁单成功
-    锁单中 --> 页面报错: 锁单失败
-    待模拟支付 --> 结算中: 点击完成演示
-    结算中 --> 重新查询: 结算成功
-    结算中 --> 页面报错: 结算失败
-    重新查询 --> 可购买
+```javascript
+currentOutTradeNo = outTradeNo
+showPaymentModal(price)
 ```
 
-白话：只有“锁单成功”才能进入模拟支付，只有“结算成功”才刷新并重新读后端。任何失败都停在失败分支，不应凭前端按钮改变数据库。
+点击“完成演示”才调用结算：
 
-## 4. 这节不声称什么
+```javascript
+body: JSON.stringify({
+  userId, source: SOURCE, channel: CHANNEL,
+  outTradeNo: currentOutTradeNo, outTradeTime: Date.now()
+})
+```
 
-- 页面请求打通，不等于真实支付验签。
-- 浏览器传来的时间和用户 ID不能作为生产可信凭据。
-- 页面刷新后数据正确，不等于结算并发幂等已经解决。
-- 本节不增加 Java 测试；真实验证以浏览器 Network、响应 JSON 和独立库前后查询为准。
+为什么不能省：
 
-## 5. 你回看时只记三件事
+- 锁单接口返回成功的 `outTradeNo`，说明“这一笔预占”已创建。
+- 结算接口用 `outTradeNo + userId` 找未结算明细；没有它，后端无法知道你结算的是哪一笔。
+- 页面如果在锁单失败后还展示支付弹窗，会让用户以为锁单成功；所以代码先判断 `code === '0000'`，再弹窗。
 
-1. **接口契约**：请求字段要对应 DTO，响应对象要对应页面区域。
-2. **状态链**：查询 → 锁单 → 模拟支付 → 结算 → 再查询；按钮本身不代表业务成功。
-3. **边界**：前端负责交互，后端负责价格、资格、订单和结算；前端不能成为安全边界。
+```mermaid
+sequenceDiagram
+    participant P as 页面
+    participant L as MarketTradeController
+    participant S as TradeSettlementOrderService
+    participant D as MySQL
+    P->>L: 锁单(outTradeNo=A)
+    L->>D: 写团/明细
+    L-->>P: 0000
+    P->>P: 保存 currentOutTradeNo=A
+    P->>L: 结算(outTradeNo=A)
+    L->>S: 路由到结算规则
+    S->>D: 改明细状态、更新完成量
+    S-->>P: 0000
+    P->>P: 刷新页面重新查询
+```
 
-本节完成后我会审阅浏览器与接口结果，明确通过范围并停下；你提交 Git、确认继续后，才进入后续章节。
+**图的意思：** 结算请求里的 A 必须和锁单请求一致；页面保存这个值，才把两次独立 HTTP 请求连成一笔业务。
+
+## 3. 2026-10-30 的 AI 验证记录
+
+真实后端（8091）本轮未启动；我在仓库外复制页面，只把接口地址改为本机模拟服务，然后用 `ego-browser` 验证了前端行为。**这不是后端集成验证。**
+
+| 场景 | 观察结果 |
+| --- | --- |
+| 首页返回一个团 | 文案“直降 ¥10，2人再抢”；按钮显示原价 100、拼团价 90；剩余 1 人；倒计时出现 |
+| 点击参团 | 出现锁单请求；弹窗金额 90.00，交易号有值 |
+| 点击完成演示 | 出现“支付&结算成功”；关闭提示后页面刷新并重新请求首页 |
+| 空 `teamList` | 显示“小伙伴，赶紧去开团吧！”，没有团按钮 |
+| 首页返回 `0002` | 页面显示“首页查询失败：非法参数”，不渲染假数据 |
+| 无登录 Cookie | 回到模拟登录页 |
+| JavaScript 语法 | `node --check js/index.js` 无输出、退出码 0 |
+
+**未验证：** 真实 Spring Boot 接口、MySQL 写入、Redis、锁单失败业务码、跨域实际配置、并发。模拟服务只证明前端请求和渲染逻辑，不证明后端。
+
+## 4. 你的真实复验步骤
+
+前提：独立测试库；启动自己的 Application；不要拿共享业务库反复试。
+
+### 4.1 启动
+
+1. 在 IDEA 启动 `Application`，确认日志端口是 `8091`。
+2. 用 IDEA 内置服务器或本地静态服务打开 `docs/dev-ops/nginx/html/index.html`，用 HTTP 地址而不是文件路径。
+3. 打开 F12 → Network → 保留日志。
+
+### 4.2 首页查询
+
+1. 先在模拟登录页输入你的测试用户，再回到首页。
+2. Network 找到 `query_group_buy_market_config`，检查请求体四个字段。
+3. 看响应 `code`：
+   - `0000`：记录 `goods.deductionPrice`、`teamStatistic.allTeamUserCount`、`teamList` 条数。
+   - 非 `0000`：记录 `code / info`，此时页面应显示错误，不应显示价格和团。
+4. 对照页面：
+   - 直降金额 = `deductionPrice`。
+   - 底部开团价 = `payPrice`；单独购买价 = `originalPrice`。
+   - 团卡片剩余人数 = `targetCount - lockCount`。
+   - 空列表时出现开团提示。
+
+### 4.3 锁单与结算
+
+1. 点击“参与拼团”或“开团购买”，Network 应出现 `lock_market_pay_order`。
+2. 请求体里记下 `outTradeNo`；确认弹窗展示的是同一个交易号。
+3. 点击“完成演示”，Network 出现 `settlement_market_pay_order`；请求体 `outTradeNo` 必须与锁单一致。
+4. 结算成功后页面刷新，首页请求再次发出。
+5. 用上一步的 `outTradeNo` 在独立库执行只读查询：
+
+```sql
+select user_id, out_trade_no, team_id, status, out_trade_time
+from group_buy_order_list
+where out_trade_no = '这里填刚才的交易号';
+```
+
+期望：`status=1`，`out_trade_time` 有值。再按 team_id 查 `group_buy_order`，核对 `complete_count` 是否按当前团进度增加。
+
+### 4.4 失败分支
+
+1. 停掉 Application，刷新页面：应看到请求失败提示，不应出现假价格。
+2. 用一个空商品 ID 的请求验证后端 `0002`：页面应提示错误。
+3. 不要为了让页面“看起来成功”而手动改前端判断 `code` 的逻辑。
+
+### 4.5 交给我的证据
+
+- Network 中三个请求的截图或 JSON。
+- 非空 `teamList` 的响应原文。
+- 结算后 SQL 的 `status / out_trade_time / complete_count` 前后对比。
+- 一个失败场景的页面提示。
+
+## 5. 面试表达边界
+
+可以讲：
+
+> 在拼团营销学习项目中，完成静态页面与营销接口的联调：首页请求对应商品 DTO，按 `goods/teamList/teamStatistic` 分层渲染；锁单保存外部交易号，结算时复用以关联同一笔业务；失败响应按业务码展示，不把 HTTP 200 当作成功。
+
+不能讲：
+
+- “实现了真实支付或扫码验签”。
+- “前端保证了并发幂等”。
+- “这套 UI 是我独立设计或手写的”。
+- 没有完成独立库验证前，不要声称“全链路数据库验证通过”。
+
+## 6. 收口
+
+1. **HTTP 200 不等于业务成功**：先判断响应 `code`，再渲染或提示。
+2. **页面数据来自响应**：价格、团、统计都按字段映射；空列表是业务状态，不是 bug。
+3. **交易号串起锁单与结算**：没有成功锁单，不能进入结算；两次请求不是同一件事。
+4. **前端是交互层，不是安全边界**：金额、资格、支付真实性最终由后端判断。
+
+复验完成后，把第 4.5 节的证据发我；我审阅通过后会停下来，等你提交 Git。
