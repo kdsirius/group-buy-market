@@ -4,25 +4,22 @@ import com.alibaba.fastjson.JSON;
 import com.sirius.api.IMarketTradeService;
 import com.sirius.api.dto.LockMarketPayOrderRequestDTO;
 import com.sirius.api.dto.LockMarketPayOrderResponseDTO;
+import com.sirius.api.dto.SettlementMarketPayOrderRequestDTO;
+import com.sirius.api.dto.SettlementMarketPayOrderResponseDTO;
 import com.sirius.api.response.Response;
 import com.sirius.domain.activity.model.entity.MarketProductEntity;
 import com.sirius.domain.activity.model.entity.TrialBalanceEntity;
 import com.sirius.domain.activity.model.valobj.GroupBuyActivityDiscountVO;
 import com.sirius.domain.activity.service.IIndexGroupBuyMarketService;
-import com.sirius.domain.trade.model.entity.MarketPayOrderEntity;
-import com.sirius.domain.trade.model.entity.PayActivityEntity;
-import com.sirius.domain.trade.model.entity.PayDiscountEntity;
-import com.sirius.domain.trade.model.entity.UserEntity;
+import com.sirius.domain.trade.model.entity.*;
 import com.sirius.domain.trade.model.valobj.GroupBuyProgressVO;
 import com.sirius.domain.trade.service.ITradeLockOrderService;
+import com.sirius.domain.trade.service.ITradeSettlementOrderService;
 import com.sirius.types.enums.ResponseCode;
 import com.sirius.types.exception.AppException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Objects;
@@ -44,12 +41,16 @@ public class MarketTradeController implements IMarketTradeService {
     @Resource
     private ITradeLockOrderService tradeOrderService;
 
+    @Resource
+    private ITradeSettlementOrderService tradeSettlementOrderService;
+
+
     /**
      * 拼团营销锁单
      */
     @RequestMapping(value = "lock_market_pay_order", method = RequestMethod.POST)
     @Override
-    public Response<LockMarketPayOrderResponseDTO> lockMarketPayOrder(LockMarketPayOrderRequestDTO lockMarketPayOrderRequestDTO) {
+    public Response<LockMarketPayOrderResponseDTO> lockMarketPayOrder(@RequestBody LockMarketPayOrderRequestDTO lockMarketPayOrderRequestDTO) {
         try {
             // 获取参数
             String userId = lockMarketPayOrderRequestDTO.getUserId();
@@ -172,4 +173,55 @@ public class MarketTradeController implements IMarketTradeService {
                     .build();
         }
     }
+
+    /**
+     * 拼团结算
+     */
+    @PostMapping("settlement_market_pay_order")
+    @Override
+    public Response<SettlementMarketPayOrderResponseDTO> settlementMarketPayOrder(
+            @RequestBody SettlementMarketPayOrderRequestDTO request) {
+        if (StringUtils.isAnyBlank(request.getUserId(), request.getSource(), request.getChannel(),
+                request.getOutTradeNo()) || request.getOutTradeTime() == null) {
+            return Response.<SettlementMarketPayOrderResponseDTO>builder()
+                    .code(ResponseCode.ILLEGAL_PARAMETER.getCode())
+                    .info(ResponseCode.ILLEGAL_PARAMETER.getInfo())
+                    .build();
+        }
+        try {
+            // Controller只转换入参；时间与订单规则仍交给已有领域服务。
+            TradePaySettlementEntity result = tradeSettlementOrderService.settlementMarketPayOrder(toTradePaySuccessEntity(request));
+            return Response.<SettlementMarketPayOrderResponseDTO>builder()
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .info(ResponseCode.SUCCESS.getInfo())
+                    .data(toSettlementMarketPayOrderResponseDTO(result))
+                    .build();
+        } catch (AppException e) {
+            return Response.<SettlementMarketPayOrderResponseDTO>builder().code(e.getCode()).info(e.getInfo()).build();
+        } catch (Exception e) {
+            log.error("模拟结算接口失败", e);
+            return Response.<SettlementMarketPayOrderResponseDTO>builder()
+                    .code(ResponseCode.UN_ERROR.getCode()).info(ResponseCode.UN_ERROR.getInfo()).build();
+        }
+    }
+
+    private SettlementMarketPayOrderResponseDTO toSettlementMarketPayOrderResponseDTO(TradePaySettlementEntity result) {
+        return SettlementMarketPayOrderResponseDTO.builder()
+                .userId(result.getUserId())
+                .teamId(result.getTeamId())
+                .activityId(result.getActivityId())
+                .outTradeNo(result.getOutTradeNo())
+                .build();
+    }
+
+    private TradePaySuccessEntity toTradePaySuccessEntity(SettlementMarketPayOrderRequestDTO request) {
+        return TradePaySuccessEntity.builder()
+                .source(request.getSource())
+                .channel(request.getChannel())
+                .userId(request.getUserId())
+                .outTradeNo(request.getOutTradeNo())
+                .outTradeTime(request.getOutTradeTime())
+                .build();
+    }
+
 }

@@ -2,6 +2,10 @@ package com.sirius.infrastructure.dao;
 
 import com.sirius.infrastructure.dao.po.GroupBuyOrder;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Sirius
@@ -24,4 +28,12 @@ public interface IGroupBuyOrderDao {
     int updateAddCompleteCount(String teamId);
 
     int updateOrderStatus2COMPLETE(String teamId);
+
+    List<GroupBuyOrder> queryGroupBuyProgressByTeamIds(@Param("teamIds") Set<String> teamIds);
+
+    Integer queryAllTeamCount(@Param("activityId") Long activityId);
+
+    Integer queryAllTeamCompleteCount(@Param("activityId") Long activityId);
+
+    Integer queryAllUserCount(@Param("activityId") Long activityId);
 }

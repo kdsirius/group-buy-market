@@ -1,24 +1,18 @@
 package com.sirius.infrastructure.adapter.repository;
 
 import com.sirius.domain.activity.adapter.repository.IActivityRepository;
-import com.sirius.domain.activity.model.valobj.DiscountTypeEnum;
-import com.sirius.domain.activity.model.valobj.GroupBuyActivityDiscountVO;
-import com.sirius.domain.activity.model.valobj.SCSkuActivityVO;
-import com.sirius.domain.activity.model.valobj.SkuVO;
-import com.sirius.infrastructure.dao.IGroupBuyActivityDao;
-import com.sirius.infrastructure.dao.IGroupBuyDiscountDao;
-import com.sirius.infrastructure.dao.ISCSkuActivityDao;
-import com.sirius.infrastructure.dao.ISkuDao;
-import com.sirius.infrastructure.dao.po.GroupBuyActivity;
-import com.sirius.infrastructure.dao.po.GroupBuyDiscount;
-import com.sirius.infrastructure.dao.po.SCSkuActivity;
-import com.sirius.infrastructure.dao.po.Sku;
+import com.sirius.domain.activity.model.entity.UserGroupBuyOrderDetailEntity;
+import com.sirius.domain.activity.model.valobj.*;
+import com.sirius.infrastructure.dao.*;
+import com.sirius.infrastructure.dao.po.*;
 import com.sirius.infrastructure.dcc.DCCService;
 import com.sirius.infrastructure.redis.IRedisService;
 import org.redisson.api.RBitSet;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Sirius
@@ -44,6 +38,70 @@ public class ActivityRepository implements IActivityRepository {
 
     @Resource
     private DCCService dccService;
+
+    @Resource
+    private IGroupBuyOrderListDao groupBuyOrderListDao;
+
+    @Resource
+    IGroupBuyOrderDao groupBuyOrderDao;
+
+    @Override
+    public List<UserGroupBuyOrderDetailEntity> queryInProgressUserGroupBuyOrderDetailListByOwner(Long activityId,
+                                                                                                 String userId, Integer ownerCount) {
+        GroupBuyOrderList request = new GroupBuyOrderList();
+        request.setActivityId(activityId);
+        request.setUserId(userId);
+        request.setCount(ownerCount);
+        return assembleTeams(groupBuyOrderListDao.queryInProgressUserGroupBuyOrderDetailListByUserId(request));
+    }
+
+
+    @Override
+    public List<UserGroupBuyOrderDetailEntity> queryInProgressUserGroupBuyOrderDetailListByRandom(Long activityId, String userId, Integer randomCount) {
+        GroupBuyOrderList request = new GroupBuyOrderList();
+        request.setActivityId(activityId);
+        request.setUserId(userId);
+        // 展示最多2条时，先查询4条候选，再打乱抽取。
+        request.setCount(randomCount * 2);
+        // DAO返回的候选复制后再打乱，避免修改调用方提供的列表。
+        List<GroupBuyOrderList> rows = new ArrayList<>(
+                groupBuyOrderListDao.queryInProgressUserGroupBuyOrderDetailListByRandom(request));
+        Collections.shuffle(rows);
+        if (rows.size() > randomCount) rows = rows.subList(0, randomCount);
+        return assembleTeams(rows);
+    }
+
+    private List<UserGroupBuyOrderDetailEntity> assembleTeams(List<GroupBuyOrderList> rows) {
+        // 无候选就结束，否则批量SQL会出现IN ()。MyBatis的列表查询无结果返回空List。
+        if (rows.isEmpty()) return Collections.emptyList();
+        Set<String> ids = rows.stream().map(GroupBuyOrderList::getTeamId).collect(Collectors.toSet());
+        Map<String, GroupBuyOrder> teams = groupBuyOrderDao.queryGroupBuyProgressByTeamIds(ids)
+                .stream().collect(Collectors.toMap(GroupBuyOrder::getTeamId, team -> team));
+        List<UserGroupBuyOrderDetailEntity> result = new ArrayList<>();
+        for (GroupBuyOrderList row : rows) {
+            GroupBuyOrder team = teams.get(row.getTeamId());
+            // 两次查询间团可能已满或截止，以第二次查到的可展示团为准。
+            if (team == null) continue;
+            result.add(UserGroupBuyOrderDetailEntity.builder()
+                    .userId(row.getUserId()).teamId(team.getTeamId()).activityId(team.getActivityId())
+                    // SQL 已查到完成量，这里必须继续传给领域实体，首页才能返回。
+                    .targetCount(team.getTargetCount())
+                    .completeCount(team.getCompleteCount())
+                    .lockCount(team.getLockCount()).validStartTime(team.getValidStartTime())
+                    .validEndTime(team.getValidEndTime()).outTradeNo(row.getOutTradeNo())
+                    .build());
+        }
+        return result;
+    }
+
+    @Override
+    public TeamStatisticVO queryTeamStatisticByActivityId(Long activityId) {
+        return TeamStatisticVO.builder()
+                .allTeamCount(groupBuyOrderDao.queryAllTeamCount(activityId))
+                .allTeamCompleteCount(groupBuyOrderDao.queryAllTeamCompleteCount(activityId))
+                .allTeamUserCount(groupBuyOrderDao.queryAllUserCount(activityId))
+                .build();
+    }
 
     @Override
     public boolean isTagCrowdRange(String tagId, String userId) {

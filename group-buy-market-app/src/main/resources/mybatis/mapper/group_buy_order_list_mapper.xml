@@ -63,4 +63,28 @@
         where team_id = #{teamId} and status = 1
     </select>
 
+    <select id="queryInProgressUserGroupBuyOrderDetailListByUserId"
+            resultMap="dataMap">
+        select l.user_id, l.team_id, l.out_trade_no
+        from group_buy_order_list l
+                 inner join group_buy_order t on t.team_id = l.team_id
+        where l.activity_id = #{activityId} and l.user_id = #{userId}
+          and l.status in (0, 1) and t.status = 0
+          and t.valid_end_time > now() and t.target_count > t.lock_count
+        order by l.id desc
+            limit #{count}
+    </select>
+
+    <select id="queryInProgressUserGroupBuyOrderDetailListByRandom"
+            resultMap="dataMap">
+        select l.user_id, l.team_id
+        from group_buy_order_list l
+                 inner join group_buy_order t on t.team_id = l.team_id
+        where l.activity_id = #{activityId} and l.user_id != #{userId}
+          and l.status in (0, 1) and t.status = 0
+          and t.valid_end_time > now() and t.target_count > t.lock_count
+        order by l.id desc
+            limit #{count}
+    </select>
+
 </mapper>

@@ -2,6 +2,8 @@ package com.sirius.api;
 
 import com.sirius.api.dto.LockMarketPayOrderRequestDTO;
 import com.sirius.api.dto.LockMarketPayOrderResponseDTO;
+import com.sirius.api.dto.SettlementMarketPayOrderRequestDTO;
+import com.sirius.api.dto.SettlementMarketPayOrderResponseDTO;
 import com.sirius.api.response.Response;
 
 /**
@@ -12,5 +14,7 @@ import com.sirius.api.response.Response;
 public interface IMarketTradeService {
 
     Response<LockMarketPayOrderResponseDTO> lockMarketPayOrder(LockMarketPayOrderRequestDTO lockMarketPayOrderRequestDTO);
+
+    Response<SettlementMarketPayOrderResponseDTO> settlementMarketPayOrder(SettlementMarketPayOrderRequestDTO request);
 
 }

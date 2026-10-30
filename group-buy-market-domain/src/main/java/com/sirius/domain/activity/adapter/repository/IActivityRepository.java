@@ -1,8 +1,12 @@
 package com.sirius.domain.activity.adapter.repository;
 
+import com.sirius.domain.activity.model.entity.UserGroupBuyOrderDetailEntity;
 import com.sirius.domain.activity.model.valobj.GroupBuyActivityDiscountVO;
 import com.sirius.domain.activity.model.valobj.SCSkuActivityVO;
 import com.sirius.domain.activity.model.valobj.SkuVO;
+import com.sirius.domain.activity.model.valobj.TeamStatisticVO;
+
+import java.util.List;
 
 /**
  * @author Sirius
@@ -22,4 +26,12 @@ public interface IActivityRepository {
     boolean downgradeSwitch();
 
     boolean cutRange(String userId);
+
+    List<UserGroupBuyOrderDetailEntity> queryInProgressUserGroupBuyOrderDetailListByOwner(
+            Long activityId, String userId, Integer ownerCount);
+
+    List<UserGroupBuyOrderDetailEntity> queryInProgressUserGroupBuyOrderDetailListByRandom(
+            Long activityId, String userId, Integer randomCount);
+
+    TeamStatisticVO queryTeamStatisticByActivityId(Long activityId);
 }

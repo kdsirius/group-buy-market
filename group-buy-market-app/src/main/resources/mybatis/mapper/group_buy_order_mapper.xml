@@ -65,7 +65,6 @@
         set complete_count = complete_count + 1, update_time= now()
         where team_id = #{teamId} and complete_count < target_count
         ]]>
-
     </update>
 
     <update id="updateOrderStatus2COMPLETE" parameterType="java.lang.String">
@@ -74,5 +73,27 @@
         where team_id = #{teamId} and status = 0
     </update>
 
+    <select id="queryGroupBuyProgressByTeamIds" resultMap="dataMap">
+        select team_id, activity_id, target_count, complete_count, lock_count,
+               status, valid_start_time, valid_end_time
+        from group_buy_order
+        where status = 0 and target_count > lock_count and valid_end_time > now()
+        and team_id in
+        <foreach collection="teamIds" item="teamId" open="(" separator="," close=")">
+            #{teamId}
+        </foreach>
+    </select>
+
+    <select id="queryAllTeamCount" resultType="java.lang.Integer">
+        select count(*) from group_buy_order where activity_id = #{activityId}
+    </select>
+
+    <select id="queryAllTeamCompleteCount" resultType="java.lang.Integer">
+        select count(*) from group_buy_order where activity_id = #{activityId} and status = 1
+    </select>
+
+    <select id="queryAllUserCount" resultType="java.lang.Integer">
+        select coalesce(sum(lock_count), 0) from group_buy_order where activity_id = #{activityId}
+    </select>
 
 </mapper>

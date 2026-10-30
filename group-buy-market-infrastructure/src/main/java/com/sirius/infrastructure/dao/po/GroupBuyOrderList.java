@@ -59,4 +59,7 @@ public class GroupBuyOrderList implements Serializable {
     /** 外部支付完成时间 */
     private Date outTradeTime;
 
+    // 只作为查询上限，不是表字段
+    private Integer count;
+
 }
