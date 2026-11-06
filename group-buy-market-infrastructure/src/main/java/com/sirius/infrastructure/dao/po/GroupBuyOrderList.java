@@ -46,6 +46,8 @@ public class GroupBuyOrderList implements Serializable {
     private BigDecimal originalPrice;
     /** 折扣金额 */
     private BigDecimal deductionPrice;
+    /** 实付金额快照；重复锁单从明细读取，不重新计算。 */
+    private BigDecimal payPrice;
     /** 状态；0初始锁定、1消费完成 */
     private Integer status;
     /** 外部交易单号-确保外部调用唯一幂等 */
@@ -58,6 +60,7 @@ public class GroupBuyOrderList implements Serializable {
     private Date updateTime;
     /** 外部支付完成时间 */
     private Date outTradeTime;
+
 
     // 只作为查询上限，不是表字段
     private Integer count;

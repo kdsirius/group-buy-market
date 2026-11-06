@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 /**
- * @author Sirius
- * @description 拼团，预购订单营销实体对象
- * @date 2026年09月22日 16:35
+ * 一笔营销锁单的结果；金额属于该订单快照，而不是当前页面报价。
  */
 @Data
 @Builder
@@ -23,10 +21,13 @@ public class MarketPayOrderEntity {
     private String teamId;
     /** 预购订单ID */
     private String orderId;
-    /** 折扣金额 */
+    /** 原价。 */
+    private BigDecimal originalPrice;
+    /** 优惠额。 */
     private BigDecimal deductionPrice;
+    /** 实付额。 */
+    private BigDecimal payPrice;
     /** 交易订单状态枚举 */
     private TradeOrderStatusEnumVO tradeOrderStatusEnumVO;
-
 
 }

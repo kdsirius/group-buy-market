@@ -8,9 +8,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 /**
- * @author Sirius
- * @description  营销支付锁单应答对象
- * @date 2026年09月22日 16:17
+ * 营销锁单响应；orderId 是拼团订单号，三个金额均由拼团服务确定。
  */
 @Data
 @Builder
@@ -18,12 +16,25 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class LockMarketPayOrderResponseDTO {
 
-    /** 预购订单ID */
+    /**
+     * 预购订单ID
+     */
     private String orderId;
-    /** 折扣金额 */
+    /**
+     * 原价。
+     */
+    private BigDecimal originalPrice;
+    /**
+     * 优惠额。
+     */
     private BigDecimal deductionPrice;
-    /** 交易订单状态 */
+    /**
+     * 实付额。
+     */
+    private BigDecimal payPrice;
+    /**
+     * 0 表示初始锁单；不是支付成功。
+     */
     private Integer tradeOrderStatus;
-
 
 }

@@ -93,17 +93,18 @@ public class TradeRepository implements ITradeRepository {
 
     @Override
     public MarketPayOrderEntity queryMarketPayOrderEntityByOutTradeNo(String userId, String outTradeNo) {
-        GroupBuyOrderList groupBuyOrderListReq = new GroupBuyOrderList();
-        groupBuyOrderListReq.setUserId(userId);
-        groupBuyOrderListReq.setOutTradeNo(outTradeNo);
-        GroupBuyOrderList groupBuyOrderList = groupBuyOrderListDao.queryGroupBuyOrderRecordByOutTradeNo(groupBuyOrderListReq);
-        if (null == groupBuyOrderList) return null;
-
+        GroupBuyOrderList req = new GroupBuyOrderList();
+        req.setUserId(userId);
+        req.setOutTradeNo(outTradeNo);
+        GroupBuyOrderList record = groupBuyOrderListDao.queryGroupBuyOrderRecordByOutTradeNo(req);
+        if (null == record) return null;
         return MarketPayOrderEntity.builder()
-                .teamId(groupBuyOrderList.getTeamId())
-                .orderId(groupBuyOrderList.getOrderId())
-                .deductionPrice(groupBuyOrderList.getDeductionPrice())
-                .tradeOrderStatusEnumVO(TradeOrderStatusEnumVO.valueOf(groupBuyOrderList.getStatus()))
+                .teamId(record.getTeamId())
+                .orderId(record.getOrderId())
+                .originalPrice(record.getOriginalPrice())
+                .deductionPrice(record.getDeductionPrice())
+                .payPrice(record.getPayPrice())
+                .tradeOrderStatusEnumVO(TradeOrderStatusEnumVO.valueOf(record.getStatus()))
                 .build();
     }
 
@@ -168,6 +169,7 @@ public class TradeRepository implements ITradeRepository {
                 .channel(payDiscountEntity.getChannel())
                 .originalPrice(payDiscountEntity.getOriginalPrice())
                 .deductionPrice(payDiscountEntity.getDeductionPrice())
+                .payPrice(payDiscountEntity.getPayPrice())
                 .status(TradeOrderStatusEnumVO.CREATE.getCode())
                 .outTradeNo(payDiscountEntity.getOutTradeNo())
                 // 构建 bizId 唯一值；活动id_用户id_参与次数增加
@@ -183,7 +185,9 @@ public class TradeRepository implements ITradeRepository {
 
         return MarketPayOrderEntity.builder()
                 .orderId(orderId)
+                .originalPrice(payDiscountEntity.getOriginalPrice())
                 .deductionPrice(payDiscountEntity.getDeductionPrice())
+                .payPrice(payDiscountEntity.getPayPrice())
                 .tradeOrderStatusEnumVO(TradeOrderStatusEnumVO.CREATE)
                 .build();
     }
