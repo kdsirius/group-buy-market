@@ -201,7 +201,10 @@ public class MarketTradeController implements IMarketTradeService {
                     .data(toSettlementMarketPayOrderResponseDTO(result))
                     .build();
         } catch (AppException e) {
-            return Response.<SettlementMarketPayOrderResponseDTO>builder().code(e.getCode()).info(e.getInfo()).build();
+            return Response.<SettlementMarketPayOrderResponseDTO>builder()
+                    .code(e.getCode())
+                    .info(e.getInfo())
+                    .build();
         } catch (Exception e) {
             log.error("模拟结算接口失败", e);
             return Response.<SettlementMarketPayOrderResponseDTO>builder()
