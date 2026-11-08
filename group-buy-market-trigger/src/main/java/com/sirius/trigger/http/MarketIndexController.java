@@ -83,6 +83,7 @@ public class MarketIndexController implements IMarketIndexService {
                     .build();
 
             GoodsMarketResponseDTO response = GoodsMarketResponseDTO.builder()
+                    .activityId(activityId)
                     .goods(goods)
                     .teamList(teams)
                     .teamStatistic(teamStatistic)

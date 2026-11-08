@@ -10,11 +10,16 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 首页展示结果：活动标识、商品试算价、进行中的团及活动统计。
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class GoodsMarketResponseDTO {
+    /** 本次商品试算对应的活动；即使没有进行中的团，页面也能据此开团。 */
+    private Long activityId;
     private Goods goods;
     private List<Team> teamList;
     private TeamStatistic teamStatistic;
