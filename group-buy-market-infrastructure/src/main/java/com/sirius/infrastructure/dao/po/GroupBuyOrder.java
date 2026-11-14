@@ -54,7 +54,9 @@ public class GroupBuyOrder implements Serializable {
     private Date validStartTime;
     /** 开团时保存的团有效结束时间 */
     private Date validEndTime;
-    /** 开团时约定的通知地址。 */
+    /** 回调类型：HTTP、MQ。 */
+    private String notifyType;
+    /** HTTP 回调地址；MQ 任务为空。 */
     private String notifyUrl;
 
 }

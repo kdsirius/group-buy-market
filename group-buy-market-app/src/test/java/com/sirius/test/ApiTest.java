@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Date;
 
 @Slf4j
 //@RunWith(SpringRunner.class)
@@ -25,7 +26,7 @@ public class ApiTest {
 
     @Test
     public void test_time(){
-        System.out.println(System.currentTimeMillis());
+        System.out.println(new Date().getTime());
     }
 
 }

@@ -93,7 +93,7 @@ public class TradeSettlementOrderService implements ITradeSettlementOrderService
                 .status(back.getStatus())
                 .validStartTime(back.getValidStartTime())
                 .validEndTime(back.getValidEndTime())
-                .notifyUrl(back.getNotifyUrl())
+                .notifyConfigVO(back.getNotifyConfigVO())
                 .build();
 
         boolean isNotify = repository.settlementMarketPayOrder(GroupBuyTeamSettlementAggregate.builder()

@@ -24,7 +24,11 @@ public class NotifyTask {
     private Long activityId;
     /** 拼单组队ID */
     private String teamId;
-    /** 回调接口 */
+    /** 回调类型：HTTP、MQ。 */
+    private String notifyType;
+    /** MQ 路由键。 */
+    private String notifyMQ;
+    /** HTTP 回调地址。 */
     private String notifyUrl;
     /** 回调次数 */
     private Integer notifyCount;

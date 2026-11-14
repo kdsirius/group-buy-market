@@ -9,6 +9,8 @@ import com.sirius.domain.trade.model.entity.MarketPayOrderEntity;
 import com.sirius.domain.trade.model.entity.PayActivityEntity;
 import com.sirius.domain.trade.model.entity.PayDiscountEntity;
 import com.sirius.domain.trade.model.entity.UserEntity;
+import com.sirius.domain.trade.model.valobj.NotifyConfigVO;
+import com.sirius.domain.trade.model.valobj.NotifyTypeEnumVO;
 import com.sirius.domain.trade.service.ITradeLockOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -83,7 +85,10 @@ public class ITradeLockOrderServiceTest {
                         .deductionPrice(trialBalanceEntity.getDeductionPrice())
                         .payPrice(trialBalanceEntity.getPayPrice())
                         .outTradeNo(outTradeNo)
-                        .notifyUrl("http://127.0.0.1:8091/api/v1/test/group_buy_notify")
+                        .notifyConfigVO(NotifyConfigVO.builder()
+                                .notifyType(NotifyTypeEnumVO.HTTP)
+                                .notifyUrl("http://127.0.0.1:8091/api/v1/test/group_buy_notify")
+                                .build())
                         .build());
 
         log.info("测试结果(New):{}",JSON.toJSONString(marketPayOrderEntityNew));

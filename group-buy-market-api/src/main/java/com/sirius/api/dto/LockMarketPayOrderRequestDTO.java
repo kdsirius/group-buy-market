@@ -3,9 +3,7 @@ package com.sirius.api.dto;
 import lombok.Data;
 
 /**
- * @author Sirius
- * @description 营销支付锁单请求对象
- * @date 2026年09月22日 16:14
+ * 营销支付锁单请求对象。
  */
 @Data
 public class LockMarketPayOrderRequestDTO {
@@ -25,6 +23,26 @@ public class LockMarketPayOrderRequestDTO {
     // 外部交易单号
     private String outTradeNo;
     // 开团时约定的通知地址
-    private String notifyUrl;
+    private NotifyConfigVO notifyConfigVO;
 
+    /** 兼容旧 HTTP 调用：收到 notifyUrl 时自动构造 HTTP 配置。 */
+    public void setNotifyUrl(String url){
+        NotifyConfigVO config = new NotifyConfigVO();
+        config.setNotifyType("HTTP");
+        config.setNotifyUrl(url);
+        this.notifyConfigVO = config;
+    }
+    /** MQ 不接受外部路由键，统一使用服务端 topic.team_success。 */
+    public void setNotifyMQ(){
+        NotifyConfigVO config = new NotifyConfigVO();
+        config.setNotifyType("MQ");
+        this.notifyConfigVO = config;
+    }
+    @Data
+    public static class NotifyConfigVO {
+        /** HTTP 或 MQ。 */
+        private String notifyType;
+        /** 仅 HTTP 使用。 */
+        private String notifyUrl;
+    }
 }

@@ -1,5 +1,6 @@
 package com.sirius.domain.trade.model.entity;
 
+import com.sirius.domain.trade.model.valobj.NotifyConfigVO;
 import com.sirius.types.enums.GroupBuyOrderEnumVO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,7 +36,7 @@ public class GroupBuyTeamEntity {
     private Date validStartTime;
     /** 开团时保存的团有效结束时间 */
     private Date validEndTime;
-    /** 开团时约定的通知地址。 */
-    private String notifyUrl;
+    /** 锁单时约定的完成通知配置。 */
+    private NotifyConfigVO notifyConfigVO;
 
 }

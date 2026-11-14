@@ -6,17 +6,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 一次拼团完成通知任务；一团一条任务，负责承载发送所需的快照。
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotifyTaskEntity {
-    /** 发送的是整个团完成的信息，一团一份任务。 */
     private String teamId;
+    private String notifyType;
+    private String notifyMQ;
     private String notifyUrl;
     /** 已尝试次数；本次发送前读取这个数。 */
     private Integer notifyCount;
-    /** 已经生成好的 JSON，不在 HTTP 网关里重新拼订单。 */
+    /** 成团消息 JSON，不在发送端重新查询订单。 */
     private String parameterJson;
 
     public String lockKey() {

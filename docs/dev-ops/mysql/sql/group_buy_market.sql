@@ -201,10 +201,11 @@ CREATE TABLE `group_buy_order` (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `valid_start_time` datetime DEFAULT NULL COMMENT '团有效开始时间',
   `valid_end_time` datetime DEFAULT NULL COMMENT '团有效结束时间',
-  `notify_url` varchar(255) DEFAULT NULL COMMENT '拼团完成回调地址',
+  `notify_type` varchar(8) NOT NULL DEFAULT 'HTTP' COMMENT '回调类型（HTTP、MQ）',
+  `notify_url` varchar(255) DEFAULT NULL COMMENT 'HTTP 回调地址',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_team_id` (`team_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -213,7 +214,6 @@ CREATE TABLE `group_buy_order` (
 
 LOCK TABLES `group_buy_order` WRITE;
 /*!40000 ALTER TABLE `group_buy_order` DISABLE KEYS */;
-INSERT INTO `group_buy_order` VALUES (25,'19937138',100123,'s01','c01',100.00,10.00,90.00,3,3,3,1,'2026-10-27 17:13:07','2026-10-27 17:15:41','2026-10-27 17:13:08','2026-10-27 17:28:08','http://127.0.0.1:8091/api/v1/test/group_buy_notify'),(26,'99413277',100123,'s01','c01',100.00,10.00,90.00,3,1,1,0,'2026-10-30 16:53:43','2026-10-30 16:59:49','2026-10-30 16:53:44','2026-10-30 17:08:44','http://127.0.0.1:8091/api/v1/test/group_buy_notify');
 /*!40000 ALTER TABLE `group_buy_order` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -243,10 +243,11 @@ CREATE TABLE `group_buy_order_list` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `out_trade_time` datetime DEFAULT NULL COMMENT '外部支付完成时间',
+  `pay_price` decimal(10,2) DEFAULT NULL COMMENT '本笔拼团订单实付金额',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_order_id` (`order_id`),
   KEY `idx_user_id_activity_id` (`user_id`,`activity_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -255,7 +256,6 @@ CREATE TABLE `group_buy_order_list` (
 
 LOCK TABLES `group_buy_order_list` WRITE;
 /*!40000 ALTER TABLE `group_buy_order_list` DISABLE KEYS */;
-INSERT INTO `group_buy_order_list` VALUES (38,'xfg01','19937138','846124928492',100123,'2026-07-07 10:19:40','2026-12-07 10:19:40','9890001','s01','c01',100.00,10.00,1,'909000098119','100123_xfg01_1','2026-10-27 17:13:07','2026-10-27 17:15:41','2026-10-27 17:15:41'),(39,'xfg02','19937138','885679317715',100123,'2026-07-07 10:19:40','2026-12-07 10:19:40','9890001','s01','c01',100.00,10.00,1,'909000098118','100123_xfg02_1','2026-10-27 17:13:40','2026-10-27 17:14:43','2026-10-27 17:14:43'),(40,'xfg03','19937138','767869133297',100123,'2026-07-07 10:19:40','2026-12-07 10:19:40','9890001','s01','c01',100.00,10.00,1,'909000098117','100123_xfg03_1','2026-10-27 17:14:03','2026-10-27 17:15:12','2026-10-27 17:15:12'),(41,'xfg04','99413277','316165851188',100123,'2026-07-07 10:19:40','2026-12-07 10:19:40','9890001','s01','c01',100.00,10.00,1,'909000098120','100123_xfg04_1','2026-10-30 16:53:43','2026-10-30 16:59:49','2026-10-30 16:57:05');
 /*!40000 ALTER TABLE `group_buy_order_list` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -270,14 +270,16 @@ CREATE TABLE `notify_task` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
   `activity_id` bigint NOT NULL COMMENT '活动ID',
   `team_id` varchar(8) NOT NULL COMMENT '拼单组队ID',
-  `notify_url` varchar(128) NOT NULL COMMENT '回调接口',
+  `notify_type` varchar(8) NOT NULL DEFAULT 'HTTP' COMMENT '回调类型（HTTP、MQ）',
+  `notify_mq` varchar(128) DEFAULT NULL COMMENT 'MQ 路由键',
+  `notify_url` varchar(128) DEFAULT NULL COMMENT 'HTTP 回调地址',
   `notify_count` int NOT NULL COMMENT '回调次数',
   `notify_status` tinyint(1) NOT NULL COMMENT '回调状态【0初始、1完成、2重试、3失败】',
   `parameter_json` varchar(256) NOT NULL COMMENT '参数对象',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -286,7 +288,6 @@ CREATE TABLE `notify_task` (
 
 LOCK TABLES `notify_task` WRITE;
 /*!40000 ALTER TABLE `notify_task` DISABLE KEYS */;
-INSERT INTO `notify_task` VALUES (5,100123,'19937138','http://127.0.0.1:8091/api/v1/test/group_buy_notify',5,1,'{\"teamId\":\"19937138\",\"outTradeNoList\":[\"909000098119\",\"909000098118\",\"909000098117\"]}','2026-10-27 17:15:41','2026-10-27 17:25:41');
 /*!40000 ALTER TABLE `notify_task` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -359,4 +360,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-10-30 17:02:58
+-- Dump completed on 2026-11-14 18:51:11

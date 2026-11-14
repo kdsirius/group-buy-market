@@ -13,6 +13,8 @@ import com.sirius.domain.activity.model.valobj.GroupBuyActivityDiscountVO;
 import com.sirius.domain.activity.service.IIndexGroupBuyMarketService;
 import com.sirius.domain.trade.model.entity.*;
 import com.sirius.domain.trade.model.valobj.GroupBuyProgressVO;
+import com.sirius.domain.trade.model.valobj.NotifyConfigVO;
+import com.sirius.domain.trade.model.valobj.NotifyTypeEnumVO;
 import com.sirius.domain.trade.service.ITradeLockOrderService;
 import com.sirius.domain.trade.service.ITradeSettlementOrderService;
 import com.sirius.types.enums.ResponseCode;
@@ -50,19 +52,20 @@ public class MarketTradeController implements IMarketTradeService {
      */
     @PostMapping("lock_market_pay_order")
     @Override
-    public Response<LockMarketPayOrderResponseDTO> lockMarketPayOrder(@RequestBody LockMarketPayOrderRequestDTO lockMarketPayOrderRequestDTO) {
+    public Response<LockMarketPayOrderResponseDTO> lockMarketPayOrder(@RequestBody LockMarketPayOrderRequestDTO request) {
         try {
             // 获取参数
-            String userId = lockMarketPayOrderRequestDTO.getUserId();
-            String teamId = lockMarketPayOrderRequestDTO.getTeamId();
-            Long activityId = lockMarketPayOrderRequestDTO.getActivityId();
-            String goodsId = lockMarketPayOrderRequestDTO.getGoodsId();
-            String source = lockMarketPayOrderRequestDTO.getSource();
-            String channel = lockMarketPayOrderRequestDTO.getChannel();
-            String outTradeNo = lockMarketPayOrderRequestDTO.getOutTradeNo();
-            String notifyUrl = lockMarketPayOrderRequestDTO.getNotifyUrl();
+            String userId = request.getUserId();
+            String teamId = request.getTeamId();
+            Long activityId = request.getActivityId();
+            String goodsId = request.getGoodsId();
+            String source = request.getSource();
+            String channel = request.getChannel();
+            String outTradeNo = request.getOutTradeNo();
+            LockMarketPayOrderRequestDTO.NotifyConfigVO notifyConfigVO = request.getNotifyConfigVO();
 
-            log.info("营销交易锁单:{} LockMarketPayOrderRequestDTO:{}", userId, JSON.toJSONString(lockMarketPayOrderRequestDTO));
+            log.info("营销交易锁单:{} LockMarketPayOrderRequestDTO:{}", userId, JSON.toJSONString(request));
+
 
             // 校验参数是否为空
             if (StringUtils.isBlank(userId) || StringUtils.isBlank(source) || StringUtils.isBlank(outTradeNo)
@@ -123,6 +126,18 @@ public class MarketTradeController implements IMarketTradeService {
 
             GroupBuyActivityDiscountVO groupBuyActivityDiscountVO = trialBalanceEntity.getGroupBuyActivityDiscountVO();
 
+            // 校验notifyConfigVO是否合法
+            if (notifyConfigVO == null
+                    || StringUtils.isBlank(notifyConfigVO.getNotifyType())
+                    || (!"HTTP".equals(notifyConfigVO.getNotifyType()))
+                    && (!"MQ".equals(notifyConfigVO.getNotifyType()))
+                    || ("HTTP".equals(notifyConfigVO.getNotifyType()))
+                    && StringUtils.isBlank(notifyConfigVO.getNotifyUrl())) {
+                return Response.<LockMarketPayOrderResponseDTO>builder()
+                        .code(ResponseCode.ILLEGAL_PARAMETER.getCode())
+                        .info(ResponseCode.ILLEGAL_PARAMETER.getInfo())
+                        .build();
+            }
             // 锁单
             marketPayOrderEntity = tradeOrderService.lockMarketPayOrder(
                     UserEntity.builder().userId(userId).build(),
@@ -144,7 +159,11 @@ public class MarketTradeController implements IMarketTradeService {
                             .deductionPrice(trialBalanceEntity.getDeductionPrice())
                             .payPrice(trialBalanceEntity.getPayPrice())
                             .outTradeNo(outTradeNo)
-                            .notifyUrl(notifyUrl)
+                            .notifyConfigVO(
+                                    NotifyConfigVO.builder()
+                                            .notifyType(NotifyTypeEnumVO.valueOf(notifyConfigVO.getNotifyType()))
+                                            .notifyUrl(notifyConfigVO.getNotifyUrl())
+                                            .build())
                             .build()
             );
             log.info("交易锁单记录(新):{} marketPayOrderEntity:{}", userId, JSON.toJSONString(marketPayOrderEntity));
@@ -162,15 +181,15 @@ public class MarketTradeController implements IMarketTradeService {
                             .build())
                     .build();
         } catch (AppException e) {
-            log.error("营销交易锁单业务异常：{} LockMarketPayOrderRequestDTO{}", lockMarketPayOrderRequestDTO.getUserId(),
-                    JSON.toJSONString(lockMarketPayOrderRequestDTO), e);
+            log.error("营销交易锁单业务异常：{} LockMarketPayOrderRequestDTO{}", request.getUserId(),
+                    JSON.toJSONString(request), e);
             return Response.<LockMarketPayOrderResponseDTO>builder()
                     .code(e.getCode())
                     .info(e.getInfo())
                     .build();
         } catch (Exception e) {
-            log.error("营销交易锁单服务失败：{} LockMarketPayOrderRequestDTO{}", lockMarketPayOrderRequestDTO.getUserId(),
-                    JSON.toJSONString(lockMarketPayOrderRequestDTO), e);
+            log.error("营销交易锁单服务失败：{} LockMarketPayOrderRequestDTO{}", request.getUserId(),
+                    JSON.toJSONString(request), e);
             return Response.<LockMarketPayOrderResponseDTO>builder()
                     .code(ResponseCode.UN_ERROR.getCode())
                     .info(ResponseCode.UN_ERROR.getInfo())
