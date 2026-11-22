@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public enum GroupBuyOrderEnumVO {
+public enum GroupBuyOrderStatus {
 
     progress(0, "拼团中"),
     complete(1, "完成"),
@@ -21,8 +21,8 @@ public enum GroupBuyOrderEnumVO {
     private Integer code;
     private String info;
 
-    public static GroupBuyOrderEnumVO valueOf(Integer code) {
-        for (GroupBuyOrderEnumVO enumVO : GroupBuyOrderEnumVO.values()) {
+    public static GroupBuyOrderStatus valueOf(Integer code) {
+        for (GroupBuyOrderStatus enumVO : GroupBuyOrderStatus.values()) {
             if (enumVO.getCode().equals(code)) {
                 return enumVO;
             }

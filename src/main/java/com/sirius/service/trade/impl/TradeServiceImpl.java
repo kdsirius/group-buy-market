@@ -1,26 +1,26 @@
 package com.sirius.service.trade.impl;
 
-import com.sirius.client.ITradePort;
-import com.sirius.common.enums.ActivityStatusEnumVO;
-import com.sirius.common.enums.NotifyTaskHTTPEnumVO;
+import com.sirius.client.IGroupBuyNotificationClient;
+import com.sirius.common.enums.ActivityStatus;
+import com.sirius.common.enums.NotifyResult;
 import com.sirius.common.enums.ResponseCode;
 import com.sirius.common.exception.AppException;
-import com.sirius.model.vo.GroupBuyActivityEntity;
-import com.sirius.model.vo.GroupBuyTeamEntity;
-import com.sirius.model.vo.MarketPayOrderEntity;
-import com.sirius.model.vo.NotifyTaskEntity;
+import com.sirius.model.vo.GroupBuyActivityVO;
+import com.sirius.model.vo.GroupBuyTeamVO;
+import com.sirius.model.vo.MarketPayOrderVO;
+import com.sirius.model.vo.NotifyTaskVO;
 import com.sirius.model.dto.request.LockMarketPayOrderRequestDTO;
 import com.sirius.model.dto.request.PayActivityEntity;
 import com.sirius.model.dto.request.PayDiscountEntity;
 import com.sirius.model.dto.response.LockMarketPayOrderResponseDTO;
-import com.sirius.model.dto.response.TradePaySettlementEntity;
+import com.sirius.model.dto.response.SettlementResult;
 import com.sirius.model.dto.request.SettlementMarketPayOrderRequestDTO;
 import com.sirius.model.vo.GroupBuyProgressVO;
-import com.sirius.model.dto.request.MarketProductEntity;
+import com.sirius.model.dto.request.MarketProductRequest;
 import com.sirius.model.vo.GroupBuyActivityDiscountVO;
-import com.sirius.model.vo.TrialBalanceEntity;
+import com.sirius.model.vo.TrialBalanceVO;
 import com.sirius.model.vo.NotifyConfigVO;
-import com.sirius.model.enums.NotifyTypeEnumVO;
+import com.sirius.model.enums.NotifyType;
 import com.sirius.service.market.IMarketService;
 import org.apache.commons.lang3.StringUtils;
 import java.util.Objects;
@@ -43,15 +43,15 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
     private TradeRepository repository;
 
     @Resource
-    private ITradePort port;
+    private IGroupBuyNotificationClient notificationClient;
 
     @Resource
     private IMarketService marketService;
 
     @Override
-    public MarketPayOrderEntity queryNoPayMarketPayOrderByOutTradeNo(String userId, String outTradeNo) {
+    public MarketPayOrderVO queryNoPayMarketPayOrderByOutTradeNo(String userId, String outTradeNo) {
         log.info("????-?????????:{} outTradeNo:{}", userId, outTradeNo);
-        return repository.queryMarketPayOrderEntityByOutTradeNo(userId, outTradeNo);
+        return repository.queryMarketPayOrderVOByOutTradeNo(userId, outTradeNo);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
             throws Exception {
         validateLockRequest(request);
 
-        MarketPayOrderEntity existing = queryNoPayMarketPayOrderByOutTradeNo(
+        MarketPayOrderVO existing = queryNoPayMarketPayOrderByOutTradeNo(
                 request.getUserId(), request.getOutTradeNo());
         if (existing != null) {
             return toLockResponse(existing);
@@ -78,7 +78,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
             }
         }
 
-        TrialBalanceEntity trial = marketService.indexMarketTrial(MarketProductEntity.builder()
+        TrialBalanceVO trial = marketService.indexMarketTrial(MarketProductRequest.builder()
                 .activityId(request.getActivityId())
                 .userId(request.getUserId())
                 .goodsId(request.getGoodsId())
@@ -97,7 +97,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
         }
 
         GroupBuyActivityDiscountVO discount = trial.getGroupBuyActivityDiscountVO();
-        MarketPayOrderEntity result = lockMarketPayOrder(
+        MarketPayOrderVO result = lockMarketPayOrder(
                 request.getUserId(),
                 PayActivityEntity.builder()
                         .teamId(request.getTeamId())
@@ -118,7 +118,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
                         .payPrice(trial.getPayPrice())
                         .outTradeNo(request.getOutTradeNo())
                         .notifyConfigVO(NotifyConfigVO.builder()
-                                .notifyType(NotifyTypeEnumVO.valueOf(notify.getNotifyType()))
+                                .notifyType(NotifyType.valueOf(notify.getNotifyType()))
                                 .notifyUrl(notify.getNotifyUrl())
                                 .build())
                         .build());
@@ -126,14 +126,14 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
     }
 
     @Override
-    public MarketPayOrderEntity lockMarketPayOrder(
+    public MarketPayOrderVO lockMarketPayOrder(
             String userId, PayActivityEntity payActivityEntity, PayDiscountEntity payDiscountEntity)
             throws Exception {
         log.info("????-??????????:{} activityId:{} goodsId:{}",
                 userId, payActivityEntity.getActivityId(), payDiscountEntity.getGoodsId());
 
-        GroupBuyActivityEntity activity =
-                repository.queryGroupBuyActivityEntityByActivityId(payActivityEntity.getActivityId());
+        GroupBuyActivityVO activity =
+                repository.queryGroupBuyActivityVOByActivityId(payActivityEntity.getActivityId());
         checkActivity(activity, payActivityEntity.getActivityId());
 
         Integer userTakeOrderCount = repository.queryOrderCountByActivityId(
@@ -148,7 +148,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
     }
 
     @Override
-    public TradePaySettlementEntity settlementMarketPayOrder(
+    public SettlementResult settlementMarketPayOrder(
             SettlementMarketPayOrderRequestDTO request) throws Exception {
         if (request == null || StringUtils.isBlank(request.getUserId())
                 || StringUtils.isBlank(request.getSource())
@@ -165,13 +165,13 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
             throw new AppException(ResponseCode.E0105);
         }
 
-        MarketPayOrderEntity order = repository.queryMarketPayOrderEntityByOutTradeNo(
+        MarketPayOrderVO order = repository.queryMarketPayOrderVOByOutTradeNo(
                 request.getUserId(), request.getOutTradeNo());
         if (order == null) {
             throw new AppException(ResponseCode.E0104);
         }
 
-        GroupBuyTeamEntity team = repository.queryGroupBuyTeamByTeamId(order.getTeamId());
+        GroupBuyTeamVO team = repository.queryGroupBuyTeamByTeamId(order.getTeamId());
         if (!request.getOutTradeTime().before(team.getValidEndTime())) {
             throw new AppException(ResponseCode.E0106);
         }
@@ -182,7 +182,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
             execSettlementNotifyJob(team.getTeamId());
         }
 
-        return TradePaySettlementEntity.builder()
+        return SettlementResult.builder()
                 .source(request.getSource())
                 .channel(request.getChannel())
                 .userId(request.getUserId())
@@ -202,15 +202,15 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
         return executeNotifyTasks(repository.queryUnExecutedNotifyTaskList(teamId));
     }
 
-    private Map<String, Integer> executeNotifyTasks(List<NotifyTaskEntity> tasks) throws Exception {
+    private Map<String, Integer> executeNotifyTasks(List<NotifyTaskVO> tasks) throws Exception {
         int success = 0;
         int retry = 0;
         int error = 0;
-        for (NotifyTaskEntity task : tasks) {
-            String response = port.groupBuyNotify(task);
-            if (NotifyTaskHTTPEnumVO.SUCCESS.getCode().equals(response)) {
+        for (NotifyTaskVO task : tasks) {
+            String response = notificationClient.groupBuyNotify(task);
+            if (NotifyResult.SUCCESS.getCode().equals(response)) {
                 success += repository.updateNotifyTaskStatusSuccess(task.getTeamId());
-            } else if (NotifyTaskHTTPEnumVO.ERROR.getCode().equals(response)) {
+            } else if (NotifyResult.ERROR.getCode().equals(response)) {
                 if (task.getNotifyCount() + 1 >= 5) {
                     error += repository.updateNotifyTaskStatusError(task.getTeamId());
                 } else {
@@ -238,18 +238,18 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
         }
     }
 
-    private LockMarketPayOrderResponseDTO toLockResponse(MarketPayOrderEntity order) {
+    private LockMarketPayOrderResponseDTO toLockResponse(MarketPayOrderVO order) {
         return LockMarketPayOrderResponseDTO.builder()
                 .orderId(order.getOrderId())
                 .originalPrice(order.getOriginalPrice())
                 .deductionPrice(order.getDeductionPrice())
                 .payPrice(order.getPayPrice())
-                .tradeOrderStatus(order.getTradeOrderStatusEnumVO().getCode())
+                .tradeOrderStatus(order.getTradeOrderStatus().getCode())
                 .build();
     }
 
-    private void checkActivity(GroupBuyActivityEntity activity, Long activityId) {
-        if (!ActivityStatusEnumVO.EFFECTIVE.equals(activity.getStatus())) {
+    private void checkActivity(GroupBuyActivityVO activity, Long activityId) {
+        if (!ActivityStatus.EFFECTIVE.equals(activity.getStatus())) {
             throw new AppException(ResponseCode.E0101);
         }
 

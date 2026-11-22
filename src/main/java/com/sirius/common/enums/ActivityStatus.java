@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public enum ActivityStatusEnumVO {
+public enum ActivityStatus {
     CREATE(0, "创建"),
     EFFECTIVE(1, "生效"),
     OVERDUE(2, "过期"),
@@ -21,10 +21,10 @@ public enum ActivityStatusEnumVO {
     private Integer code;
     private String info;
 
-    public static ActivityStatusEnumVO valueOf(Integer code) {
-        for (ActivityStatusEnumVO activityStatusEnumVO : ActivityStatusEnumVO.values()) {
-            if (activityStatusEnumVO.getCode().equals(code)) {
-                return activityStatusEnumVO;
+    public static ActivityStatus valueOf(Integer code) {
+        for (ActivityStatus status : ActivityStatus.values()) {
+            if (status.getCode().equals(code)) {
+                return status;
             }
         }
         throw new IllegalArgumentException("err code not exist：" + code);

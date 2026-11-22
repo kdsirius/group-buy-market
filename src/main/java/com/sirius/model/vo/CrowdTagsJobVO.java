@@ -16,7 +16,7 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CrowdTagsJobEntity {
+public class CrowdTagsJobVO {
 
     /** 标签类型（参与量、消费金额） */
     private Integer tagType;

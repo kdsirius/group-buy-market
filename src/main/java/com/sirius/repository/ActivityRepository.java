@@ -1,6 +1,6 @@
 package com.sirius.repository;
 
-import com.sirius.model.vo.UserGroupBuyOrderDetailEntity;
+import com.sirius.model.vo.UserGroupBuyOrderDetailVO;
 import com.sirius.model.enums.*;
 import com.sirius.model.vo.*;
 import com.sirius.mapper.*;
@@ -48,7 +48,7 @@ public class ActivityRepository {
     @Resource
     IGroupBuyOrderDao groupBuyOrderDao;
 
-    public List<UserGroupBuyOrderDetailEntity> queryInProgressUserGroupBuyOrderDetailListByOwner(Long activityId,
+    public List<UserGroupBuyOrderDetailVO> queryInProgressUserGroupBuyOrderDetailListByOwner(Long activityId,
                                                                                                  String userId, Integer ownerCount) {
         GroupBuyOrderList request = new GroupBuyOrderList();
         request.setActivityId(activityId);
@@ -58,7 +58,7 @@ public class ActivityRepository {
     }
 
 
-    public List<UserGroupBuyOrderDetailEntity> queryInProgressUserGroupBuyOrderDetailListByRandom(Long activityId, String userId, Integer randomCount) {
+    public List<UserGroupBuyOrderDetailVO> queryInProgressUserGroupBuyOrderDetailListByRandom(Long activityId, String userId, Integer randomCount) {
         GroupBuyOrderList request = new GroupBuyOrderList();
         request.setActivityId(activityId);
         request.setUserId(userId);
@@ -72,18 +72,18 @@ public class ActivityRepository {
         return assembleTeams(rows);
     }
 
-    private List<UserGroupBuyOrderDetailEntity> assembleTeams(List<GroupBuyOrderList> rows) {
+    private List<UserGroupBuyOrderDetailVO> assembleTeams(List<GroupBuyOrderList> rows) {
         // 无候选就结束，否则批量SQL会出现IN ()。MyBatis的列表查询无结果返回空List。
         if (rows.isEmpty()) return Collections.emptyList();
         Set<String> ids = rows.stream().map(GroupBuyOrderList::getTeamId).collect(Collectors.toSet());
         Map<String, GroupBuyOrder> teams = groupBuyOrderDao.queryGroupBuyProgressByTeamIds(ids)
                 .stream().collect(Collectors.toMap(GroupBuyOrder::getTeamId, team -> team));
-        List<UserGroupBuyOrderDetailEntity> result = new ArrayList<>();
+        List<UserGroupBuyOrderDetailVO> result = new ArrayList<>();
         for (GroupBuyOrderList row : rows) {
             GroupBuyOrder team = teams.get(row.getTeamId());
             // 两次查询间团可能已满或截止，以第二次查到的可展示团为准。
             if (team == null) continue;
-            result.add(UserGroupBuyOrderDetailEntity.builder()
+            result.add(UserGroupBuyOrderDetailVO.builder()
                     .userId(row.getUserId()).teamId(team.getTeamId()).activityId(team.getActivityId())
                     // SQL 已查到完成量，这里必须继续传给领域实体，首页才能返回。
                     .targetCount(team.getTargetCount())

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public enum TagScopeEnumVO {
+public enum TagScope {
     VISIBLE(true, false, "是否可看见拼团"),
     ENABLE(true, false, "是否可参与拼团"),
     ;

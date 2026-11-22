@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public enum TradeOrderStatusEnumVO {
+public enum TradeOrderStatus {
 
     CREATE(0, "初始创建"),
     COMPLETE(1, "消费完成"),
@@ -22,7 +22,7 @@ public enum TradeOrderStatusEnumVO {
     private Integer code;
     private String info;
 
-    public static TradeOrderStatusEnumVO valueOf(Integer code) {
+    public static TradeOrderStatus valueOf(Integer code) {
         switch (code) {
             case 0:
                 return CREATE;

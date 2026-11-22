@@ -57,24 +57,24 @@ public class GroupBuyActivityDiscountVO {
      *  可见限制
      */
     public boolean isVisible(){
-        if (StringUtils.isBlank(this.tagScope)) return TagScopeEnumVO.VISIBLE.getAllow();
+        if (StringUtils.isBlank(this.tagScope)) return TagScope.VISIBLE.getAllow();
         String[] split = this.tagScope.split(Constants.SPLIT);
         if (split.length > 0 && Objects.equals(split[0],"1") && StringUtils.isNoneBlank(split[0])){
-            return TagScopeEnumVO.VISIBLE.getRefuse();
+            return TagScope.VISIBLE.getRefuse();
         }
-        return TagScopeEnumVO.VISIBLE.getAllow();
+        return TagScope.VISIBLE.getAllow();
     }
 
     /**
      *  参与限制
      */
     public boolean isEnable(){
-        if (StringUtils.isBlank(this.tagScope)) return TagScopeEnumVO.ENABLE.getAllow();
+        if (StringUtils.isBlank(this.tagScope)) return TagScope.ENABLE.getAllow();
         String[] split = this.tagScope.split(Constants.SPLIT);
         if (split.length == 2 && Objects.equals(split[1],"2") && StringUtils.isNoneBlank(split[1])){
-            return TagScopeEnumVO.ENABLE.getRefuse();
+            return TagScope.ENABLE.getRefuse();
         }
-        return TagScopeEnumVO.ENABLE.getAllow();
+        return TagScope.ENABLE.getAllow();
     }
 
     @Getter

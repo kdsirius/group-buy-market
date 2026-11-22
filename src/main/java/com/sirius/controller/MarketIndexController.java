@@ -1,11 +1,11 @@
 package com.sirius.controller;
 
-import com.sirius.model.dto.request.GoodsMarketRequestDTO;
+import com.sirius.model.dto.request.GoodsMarketRequest;
 import com.sirius.model.dto.response.GoodsMarketResponseDTO;
 import com.sirius.model.dto.response.Response;
-import com.sirius.model.dto.request.MarketProductEntity;
-import com.sirius.model.vo.TrialBalanceEntity;
-import com.sirius.model.vo.UserGroupBuyOrderDetailEntity;
+import com.sirius.model.dto.request.MarketProductRequest;
+import com.sirius.model.vo.TrialBalanceVO;
+import com.sirius.model.vo.UserGroupBuyOrderDetailVO;
 import com.sirius.model.vo.TeamStatisticVO;
 import com.sirius.service.market.IMarketService;
 import com.sirius.common.enums.ResponseCode;
@@ -32,7 +32,7 @@ public class MarketIndexController {
     private IMarketService indexGroupBuyMarketService;
 
     @PostMapping("query_group_buy_market_config")
-    public Response<GoodsMarketResponseDTO> queryGroupBuyMarketConfig(@RequestBody GoodsMarketRequestDTO request) {
+    public Response<GoodsMarketResponseDTO> queryGroupBuyMarketConfig(@RequestBody GoodsMarketRequest request) {
         // 校验参数
         if (StringUtils.isAnyBlank(request.getUserId(), request.getSource(),
                 request.getChannel(), request.getGoodsId())) {
@@ -43,14 +43,14 @@ public class MarketIndexController {
         }
 
         try {
-            TrialBalanceEntity trial = indexGroupBuyMarketService.indexMarketTrial(MarketProductEntity.builder()
+            TrialBalanceVO trial = indexGroupBuyMarketService.indexMarketTrial(MarketProductRequest.builder()
                     .userId(request.getUserId())
                     .goodsId(request.getGoodsId())
                     .source(request.getSource())
                     .channel(request.getChannel()).build());
 
             Long activityId = trial.getGroupBuyActivityDiscountVO().getActivityId();
-            List<UserGroupBuyOrderDetailEntity> details = indexGroupBuyMarketService
+            List<UserGroupBuyOrderDetailVO> details = indexGroupBuyMarketService
                     .queryInProgressUserGroupBuyOrderDetailList(activityId, request.getUserId(), 1, 2);
             TeamStatisticVO statistic =
                     indexGroupBuyMarketService.queryTeamStatisticByActivityId(activityId);
@@ -58,7 +58,7 @@ public class MarketIndexController {
             // 同一次响应用同一个now算倒计时，DTO不泄露完整活动/折扣配置。
             Date now = new Date();
             List<GoodsMarketResponseDTO.Team> teams = new ArrayList<>();
-            for (UserGroupBuyOrderDetailEntity detail : details) {
+            for (UserGroupBuyOrderDetailVO detail : details) {
                 teams.add(GoodsMarketResponseDTO.Team.builder()
                         .userId(detail.getUserId()).teamId(detail.getTeamId()).activityId(detail.getActivityId())
                         .targetCount(detail.getTargetCount()).completeCount(detail.getCompleteCount()).lockCount(detail.getLockCount())

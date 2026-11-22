@@ -1,6 +1,6 @@
 package com.sirius.model.vo;
 
-import com.sirius.common.enums.ActivityStatusEnumVO;
+import com.sirius.common.enums.ActivityStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +17,7 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GroupBuyActivityEntity {
+public class GroupBuyActivityVO {
 
     /** 活动ID */
     private Long activityId;
@@ -34,7 +34,7 @@ public class GroupBuyActivityEntity {
     /** 拼团时长（分钟） */
     private Integer validTime;
     /** 活动状态（0创建、1生效、2过期、3废弃） */
-    private ActivityStatusEnumVO status;
+    private ActivityStatus status;
     /** 活动开始时间 */
     private Date startTime;
     /** 活动结束时间 */

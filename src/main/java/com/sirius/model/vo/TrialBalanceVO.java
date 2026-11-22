@@ -16,7 +16,7 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TrialBalanceEntity {
+public class TrialBalanceVO {
 
     /** 商品ID */
     private String goodsId;

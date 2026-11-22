@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class NotifyConfigVO {
     /** HTTP 或 MQ。 */
-    private NotifyTypeEnumVO notifyType;
+    private NotifyType notifyType;
     /** 服务端固定的 MQ 路由键。 */
     private String notifyMQ;
     /** HTTP 回调地址。 */

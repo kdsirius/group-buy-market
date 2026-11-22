@@ -1,7 +1,7 @@
 package com.sirius.service.tag.impl;
 
 import com.sirius.repository.TagRepository;
-import com.sirius.model.vo.CrowdTagsJobEntity;
+import com.sirius.model.vo.CrowdTagsJobVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ public class TagServiceImpl implements com.sirius.service.tag.ITagService {
         log.info("人群标签批次任务 tagId:{} batchId:{}", tagId, batchId);
 
         //1. 查询批次任务
-        CrowdTagsJobEntity crowdTagsJobEntity = repository.queryCrowdTagsJobEntity(tagId, batchId);
+        CrowdTagsJobVO crowdTagsJobEntity = repository.queryCrowdTagsJobVO(tagId, batchId);
 
         //2. 采集用户数据 - 这部分需要采集用户的消费类数据，后续有用户发起拼单后再处理。
 

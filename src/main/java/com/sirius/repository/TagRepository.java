@@ -1,6 +1,6 @@
 package com.sirius.repository;
 
-import com.sirius.model.vo.CrowdTagsJobEntity;
+import com.sirius.model.vo.CrowdTagsJobVO;
 import com.sirius.mapper.ICrowdTagsDao;
 import com.sirius.mapper.ICrowdTagsDetailDao;
 import com.sirius.mapper.ICrowdTagsJobDao;
@@ -34,7 +34,7 @@ public class TagRepository {
     @Resource
     private IRedisService redisService;
 
-    public CrowdTagsJobEntity queryCrowdTagsJobEntity(String tagId, String batchId) {
+    public CrowdTagsJobVO queryCrowdTagsJobVO(String tagId, String batchId) {
         CrowdTagsJob crowdTagsJobReq = new CrowdTagsJob();
         crowdTagsJobReq.setTagId(tagId);
         crowdTagsJobReq.setBatchId(batchId);
@@ -43,7 +43,7 @@ public class TagRepository {
         if (crowdTagsJobRes == null) return null;
 
 
-        return CrowdTagsJobEntity.builder()
+        return CrowdTagsJobVO.builder()
                 .tagType(crowdTagsJobRes.getTagType())
                 .tagRule(crowdTagsJobRes.getTagRule())
                 .statStartTime(crowdTagsJobRes.getStatStartTime())

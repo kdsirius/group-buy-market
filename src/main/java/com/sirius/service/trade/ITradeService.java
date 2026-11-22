@@ -1,30 +1,30 @@
 package com.sirius.service.trade;
 
 import com.sirius.model.vo.GroupBuyProgressVO;
-import com.sirius.model.vo.MarketPayOrderEntity;
+import com.sirius.model.vo.MarketPayOrderVO;
 import com.sirius.model.dto.request.LockMarketPayOrderRequestDTO;
 import com.sirius.model.dto.request.PayActivityEntity;
 import com.sirius.model.dto.request.PayDiscountEntity;
 import com.sirius.model.dto.response.LockMarketPayOrderResponseDTO;
-import com.sirius.model.dto.response.TradePaySettlementEntity;
+import com.sirius.model.dto.response.SettlementResult;
 import com.sirius.model.dto.request.SettlementMarketPayOrderRequestDTO;
 
 import java.util.Map;
 
 public interface ITradeService {
 
-    MarketPayOrderEntity queryNoPayMarketPayOrderByOutTradeNo(String userId, String outTradeNo);
+    MarketPayOrderVO queryNoPayMarketPayOrderByOutTradeNo(String userId, String outTradeNo);
 
     GroupBuyProgressVO queryGroupBuyProgress(String teamId);
 
     LockMarketPayOrderResponseDTO lockMarketPayOrder(LockMarketPayOrderRequestDTO request)
             throws Exception;
 
-    MarketPayOrderEntity lockMarketPayOrder(
+    MarketPayOrderVO lockMarketPayOrder(
             String userId, PayActivityEntity payActivityEntity, PayDiscountEntity payDiscountEntity)
             throws Exception;
 
-    TradePaySettlementEntity settlementMarketPayOrder(SettlementMarketPayOrderRequestDTO request)
+    SettlementResult settlementMarketPayOrder(SettlementMarketPayOrderRequestDTO request)
             throws Exception;
 
 

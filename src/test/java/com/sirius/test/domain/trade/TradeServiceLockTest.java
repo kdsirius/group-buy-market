@@ -3,14 +3,14 @@ package com.sirius.test.domain.trade;
 import com.sirius.service.market.IMarketService;
 import com.sirius.service.trade.ITradeService;
 import com.alibaba.fastjson.JSON;
-import com.sirius.model.dto.request.MarketProductEntity;
-import com.sirius.model.vo.TrialBalanceEntity;
+import com.sirius.model.dto.request.MarketProductRequest;
+import com.sirius.model.vo.TrialBalanceVO;
 import com.sirius.model.vo.GroupBuyActivityDiscountVO;
-import com.sirius.model.vo.MarketPayOrderEntity;
+import com.sirius.model.vo.MarketPayOrderVO;
 import com.sirius.model.dto.request.PayActivityEntity;
 import com.sirius.model.dto.request.PayDiscountEntity;
 import com.sirius.model.vo.NotifyConfigVO;
-import com.sirius.model.enums.NotifyTypeEnumVO;
+import com.sirius.model.enums.NotifyType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +46,7 @@ public class TradeServiceLockTest {
         String outTradeNo = "909000098121";
 
         // 1. 获取试算优惠，有【activityId】优先使用
-        TrialBalanceEntity trialBalanceEntity = indexGroupBuyMarketService.indexMarketTrial(MarketProductEntity.builder()
+        TrialBalanceVO trialBalanceEntity = indexGroupBuyMarketService.indexMarketTrial(MarketProductRequest.builder()
                 .userId(userId)
                 .source(source)
                 .channel(channel)
@@ -57,14 +57,14 @@ public class TradeServiceLockTest {
         GroupBuyActivityDiscountVO groupBuyActivityDiscountVO = trialBalanceEntity.getGroupBuyActivityDiscountVO();
 
         // 查询 outTradeNo 是否已经存在交易记录
-        MarketPayOrderEntity marketPayOrderEntityOld = tradeService.queryNoPayMarketPayOrderByOutTradeNo(userId, outTradeNo);
+        MarketPayOrderVO marketPayOrderEntityOld = tradeService.queryNoPayMarketPayOrderByOutTradeNo(userId, outTradeNo);
         if (null != marketPayOrderEntityOld) {
             log.info("测试结果(Old):{}", JSON.toJSONString(marketPayOrderEntityOld));
             return;
         }
 
         // 2. 锁定，营销预支付订单；商品下单前，预购锁定。
-        MarketPayOrderEntity marketPayOrderEntityNew = tradeService.lockMarketPayOrder(
+        MarketPayOrderVO marketPayOrderEntityNew = tradeService.lockMarketPayOrder(
                 userId,
                 PayActivityEntity.builder()
                         .teamId(null)
@@ -85,7 +85,7 @@ public class TradeServiceLockTest {
                         .payPrice(trialBalanceEntity.getPayPrice())
                         .outTradeNo(outTradeNo)
                         .notifyConfigVO(NotifyConfigVO.builder()
-                                .notifyType(NotifyTypeEnumVO.HTTP)
+                                .notifyType(NotifyType.HTTP)
                                 .notifyUrl("http://127.0.0.1:8091/api/v1/test/group_buy_notify")
                                 .build())
                         .build());

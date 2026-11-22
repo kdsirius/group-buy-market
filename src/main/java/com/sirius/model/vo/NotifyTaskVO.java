@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NotifyTaskEntity {
+public class NotifyTaskVO {
     private String teamId;
     private String notifyType;
     private String notifyMQ;

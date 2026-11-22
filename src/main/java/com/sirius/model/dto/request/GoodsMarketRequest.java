@@ -4,7 +4,7 @@ package com.sirius.model.dto.request;
 import lombok.Data;
 
 @Data
-public class GoodsMarketRequestDTO {
+public class GoodsMarketRequest {
     private String userId;
     private String source;
     private String channel;

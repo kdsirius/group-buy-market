@@ -2,12 +2,12 @@ package com.sirius.service.market.impl;
 
 import com.sirius.common.enums.ResponseCode;
 import com.sirius.common.exception.AppException;
-import com.sirius.model.dto.request.MarketProductEntity;
-import com.sirius.model.vo.TrialBalanceEntity;
-import com.sirius.model.vo.UserGroupBuyOrderDetailEntity;
+import com.sirius.model.dto.request.MarketProductRequest;
+import com.sirius.model.vo.TrialBalanceVO;
+import com.sirius.model.vo.UserGroupBuyOrderDetailVO;
 import com.sirius.model.vo.GroupBuyActivityDiscountVO;
 import com.sirius.model.vo.SkuVO;
-import com.sirius.model.enums.TagScopeEnumVO;
+import com.sirius.model.enums.TagScope;
 import com.sirius.model.vo.TeamStatisticVO;
 import com.sirius.repository.ActivityRepository;
 import com.sirius.service.market.IMarketService;
@@ -40,17 +40,17 @@ public class MarketServiceImpl implements IMarketService {
     private Map<String, IDiscountCalculateService> discountCalculateServiceMap;
 
     @Override
-    public List<UserGroupBuyOrderDetailEntity> queryInProgressUserGroupBuyOrderDetailList(
+    public List<UserGroupBuyOrderDetailVO> queryInProgressUserGroupBuyOrderDetailList(
             Long activityId, String userId, Integer ownerCount, Integer randomCount) {
-        Map<String, UserGroupBuyOrderDetailEntity> teams = new LinkedHashMap<>();
+        Map<String, UserGroupBuyOrderDetailVO> teams = new LinkedHashMap<>();
         if (ownerCount > 0) {
-            for (UserGroupBuyOrderDetailEntity team :
+            for (UserGroupBuyOrderDetailVO team :
                     repository.queryInProgressUserGroupBuyOrderDetailListByOwner(activityId, userId, ownerCount)) {
                 teams.putIfAbsent(team.getTeamId(), team);
             }
         }
         if (randomCount > 0) {
-            for (UserGroupBuyOrderDetailEntity team :
+            for (UserGroupBuyOrderDetailVO team :
                     repository.queryInProgressUserGroupBuyOrderDetailListByRandom(activityId, userId, randomCount)) {
                 teams.putIfAbsent(team.getTeamId(), team);
             }
@@ -64,7 +64,7 @@ public class MarketServiceImpl implements IMarketService {
     }
 
     @Override
-    public TrialBalanceEntity indexMarketTrial(MarketProductEntity request) throws Exception {
+    public TrialBalanceVO indexMarketTrial(MarketProductRequest request) throws Exception {
         validateRequest(request);
 
         if (repository.downgradeSwitch()) {
@@ -95,15 +95,15 @@ public class MarketServiceImpl implements IMarketService {
         boolean enable = activityDiscount.isEnable();
         String tagId = activityDiscount.getTagId();
         if (StringUtils.isBlank(tagId)) {
-            visible = TagScopeEnumVO.VISIBLE.getAllow();
-            enable = TagScopeEnumVO.ENABLE.getAllow();
+            visible = TagScope.VISIBLE.getAllow();
+            enable = TagScope.ENABLE.getAllow();
         }
 
         boolean inTagRange = repository.isTagCrowdRange(tagId, request.getUserId());
         visible = visible || inTagRange;
         enable = enable || inTagRange;
 
-        return TrialBalanceEntity.builder()
+        return TrialBalanceVO.builder()
                 .goodsId(sku.getGoodsId())
                 .goodsName(sku.getGoodsName())
                 .originalPrice(sku.getOriginalPrice())
@@ -118,7 +118,7 @@ public class MarketServiceImpl implements IMarketService {
                 .build();
     }
 
-    private void validateRequest(MarketProductEntity request) {
+    private void validateRequest(MarketProductRequest request) {
         if (request == null
                 || StringUtils.isBlank(request.getUserId())
                 || StringUtils.isBlank(request.getGoodsId())
@@ -128,7 +128,7 @@ public class MarketServiceImpl implements IMarketService {
         }
     }
 
-    private MarketData queryMarketData(MarketProductEntity request) throws Exception {
+    private MarketData queryMarketData(MarketProductRequest request) throws Exception {
         Future<GroupBuyActivityDiscountVO> activityFuture = threadPoolExecutor.submit(
                 () -> queryActivityDiscount(request));
         Future<SkuVO> skuFuture = threadPoolExecutor.submit(
@@ -139,7 +139,7 @@ public class MarketServiceImpl implements IMarketService {
                 skuFuture.get(500L, TimeUnit.MINUTES));
     }
 
-    private GroupBuyActivityDiscountVO queryActivityDiscount(MarketProductEntity request) {
+    private GroupBuyActivityDiscountVO queryActivityDiscount(MarketProductRequest request) {
         Long activityId = request.getActivityId();
         if (activityId == null) {
             com.sirius.model.vo.SCSkuActivityVO skuActivity =

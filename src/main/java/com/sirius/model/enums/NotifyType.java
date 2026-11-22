@@ -8,7 +8,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum NotifyTypeEnumVO {
+public enum NotifyType {
     HTTP("HTTP", "HTTP 回调"),
     MQ("MQ", "MQ 消息通知");
 

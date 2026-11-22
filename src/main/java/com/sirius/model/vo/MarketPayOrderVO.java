@@ -1,6 +1,6 @@
 package com.sirius.model.vo;
 
-import com.sirius.model.enums.TradeOrderStatusEnumVO;
+import com.sirius.model.enums.TradeOrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MarketPayOrderEntity {
+public class MarketPayOrderVO {
 
     /** 拼单组队ID */
     private String teamId;
@@ -28,6 +28,6 @@ public class MarketPayOrderEntity {
     /** 实付额。 */
     private BigDecimal payPrice;
     /** 交易订单状态枚举 */
-    private TradeOrderStatusEnumVO tradeOrderStatusEnumVO;
+    private TradeOrderStatus tradeOrderStatus;
 
 }

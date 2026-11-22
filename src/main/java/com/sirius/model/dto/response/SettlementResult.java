@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TradePaySettlementEntity {
+public class SettlementResult {
 
     /** 渠道 */
     private String source;

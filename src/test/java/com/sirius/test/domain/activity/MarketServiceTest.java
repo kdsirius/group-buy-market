@@ -2,8 +2,8 @@ package com.sirius.test.domain.activity;
 
 import com.sirius.service.market.IMarketService;
 import com.alibaba.fastjson.JSON;
-import com.sirius.model.dto.request.MarketProductEntity;
-import com.sirius.model.vo.TrialBalanceEntity;
+import com.sirius.model.dto.request.MarketProductRequest;
+import com.sirius.model.vo.TrialBalanceVO;
 import com.sirius.common.exception.AppException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -29,26 +29,26 @@ public class MarketServiceTest {
 
     @Test
     public void test_indexMarketTrial() throws Exception {
-        MarketProductEntity marketProductEntity = new MarketProductEntity();
+        MarketProductRequest marketProductEntity = new MarketProductRequest();
         marketProductEntity.setUserId("sirius");
         marketProductEntity.setSource("s01");
         marketProductEntity.setChannel("c01");
         marketProductEntity.setGoodsId("9890001");
 
-        TrialBalanceEntity trialBalanceEntity = indexGroupBuyMarketService.indexMarketTrial(marketProductEntity);
+        TrialBalanceVO trialBalanceEntity = indexGroupBuyMarketService.indexMarketTrial(marketProductEntity);
         log.info("请求参数:{}", JSON.toJSONString(marketProductEntity));
         log.info("返回结果:{}", JSON.toJSONString(trialBalanceEntity));
     }
 
     @Test
     public void test_indexMarketTrial_no_tag() throws Exception {
-        MarketProductEntity marketProductEntity = new MarketProductEntity();
+        MarketProductRequest marketProductEntity = new MarketProductRequest();
         marketProductEntity.setUserId("dacihua");
         marketProductEntity.setSource("s01");
         marketProductEntity.setChannel("c01");
         marketProductEntity.setGoodsId("9890001");
 
-        TrialBalanceEntity trialBalanceEntity = indexGroupBuyMarketService.indexMarketTrial(marketProductEntity);
+        TrialBalanceVO trialBalanceEntity = indexGroupBuyMarketService.indexMarketTrial(marketProductEntity);
         log.info("请求参数:{}", JSON.toJSONString(marketProductEntity));
         log.info("返回结果:{}", JSON.toJSONString(trialBalanceEntity));
     }
@@ -56,7 +56,7 @@ public class MarketServiceTest {
 
     @Test
     public void test_indexMarketTrial_error() throws Exception {
-        MarketProductEntity marketProductEntity = new MarketProductEntity();
+        MarketProductRequest marketProductEntity = new MarketProductRequest();
         marketProductEntity.setUserId("xiaofuge");
         marketProductEntity.setSource("s01");
         marketProductEntity.setChannel("c01");

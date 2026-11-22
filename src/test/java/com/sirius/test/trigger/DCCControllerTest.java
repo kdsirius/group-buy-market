@@ -3,8 +3,8 @@ package com.sirius.test.trigger;
 import com.sirius.controller.DCCController;
 import com.sirius.service.market.IMarketService;
 import com.alibaba.fastjson.JSON;
-import com.sirius.model.dto.request.MarketProductEntity;
-import com.sirius.model.vo.TrialBalanceEntity;
+import com.sirius.model.dto.request.MarketProductRequest;
+import com.sirius.model.vo.TrialBalanceVO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,13 +43,13 @@ public class DCCControllerTest {
         Thread.sleep(1000);
 
         // 营销验证
-        MarketProductEntity marketProductEntity = new MarketProductEntity();
+        MarketProductRequest marketProductEntity = new MarketProductRequest();
         marketProductEntity.setUserId("xiaofuge");
         marketProductEntity.setSource("s01");
         marketProductEntity.setChannel("c01");
         marketProductEntity.setGoodsId("9890001");
 
-        TrialBalanceEntity trialBalanceEntity = indexGroupBuyMarketService.indexMarketTrial(marketProductEntity);
+        TrialBalanceVO trialBalanceEntity = indexGroupBuyMarketService.indexMarketTrial(marketProductEntity);
         log.info("请求参数:{}", JSON.toJSONString(marketProductEntity));
         log.info("返回结果:{}", JSON.toJSONString(trialBalanceEntity));
     }

@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum NotifyTaskHTTPEnumVO {
+public enum NotifyResult {
     SUCCESS("success"),
     ERROR("error"),
     NULL("null"),

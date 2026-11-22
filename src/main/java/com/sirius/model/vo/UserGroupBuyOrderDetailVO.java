@@ -11,7 +11,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserGroupBuyOrderDetailEntity {
+public class UserGroupBuyOrderDetailVO {
     private String userId;
     private String teamId;
     private Long activityId;

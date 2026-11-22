@@ -1,7 +1,7 @@
 package com.sirius.model.vo;
 
 import com.sirius.model.vo.NotifyConfigVO;
-import com.sirius.common.enums.GroupBuyOrderEnumVO;
+import com.sirius.common.enums.GroupBuyOrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +18,7 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GroupBuyTeamEntity {
+public class GroupBuyTeamVO {
 
     /** 拼单组队ID */
     private String teamId;
@@ -31,7 +31,7 @@ public class GroupBuyTeamEntity {
     /** 锁单数量 */
     private Integer lockCount;
     /** 状态（0-拼单中、1-完成、2-失败） */
-    private GroupBuyOrderEnumVO status;
+    private GroupBuyOrderStatus status;
     /** 开团时保存的团有效开始时间 */
     private Date validStartTime;
     /** 开团时保存的团有效结束时间 */
