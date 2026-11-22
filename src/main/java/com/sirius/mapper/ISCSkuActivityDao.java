@@ -1,0 +1,15 @@
+package com.sirius.mapper;
+
+import com.sirius.model.entity.SCSkuActivity;
+import org.apache.ibatis.annotations.Mapper;
+
+/**
+ * @author Sirius
+ * @description 渠道商品活动配置关联表 Dao
+ * @date 2026年09月20日 10:44
+ */
+@Mapper
+public interface ISCSkuActivityDao {
+
+    SCSkuActivity querySCSkuActivityBySCGoodsId(SCSkuActivity scSkuActivityReq);
+}
