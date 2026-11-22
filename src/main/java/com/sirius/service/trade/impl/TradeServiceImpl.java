@@ -48,14 +48,12 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
     @Resource
     private IMarketService marketService;
 
-    @Override
-    public MarketPayOrderVO queryNoPayMarketPayOrderByOutTradeNo(String userId, String outTradeNo) {
+    private MarketPayOrderVO queryNoPayMarketPayOrderByOutTradeNo(String userId, String outTradeNo) {
         log.info("????-?????????:{} outTradeNo:{}", userId, outTradeNo);
         return repository.queryMarketPayOrderVOByOutTradeNo(userId, outTradeNo);
     }
 
-    @Override
-    public GroupBuyProgressVO queryGroupBuyProgress(String teamId) {
+    private GroupBuyProgressVO queryGroupBuyProgress(String teamId) {
         log.info("????-??????:{}", teamId);
         return repository.queryGroupBuyProgress(teamId);
     }
@@ -194,8 +192,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
         return executeNotifyTasks(repository.queryUnExecutedNotifyTaskList());
     }
 
-    @Override
-    public Map<String, Integer> execSettlementNotifyJob(String teamId) throws Exception {
+    private Map<String, Integer> execSettlementNotifyJob(String teamId) throws Exception {
         return executeNotifyTasks(repository.queryUnExecutedNotifyTaskList(teamId));
     }
 
