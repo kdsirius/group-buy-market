@@ -9,12 +9,23 @@ import com.sirius.model.vo.GroupBuyActivityEntity;
 import com.sirius.model.vo.GroupBuyTeamEntity;
 import com.sirius.model.vo.MarketPayOrderEntity;
 import com.sirius.model.vo.NotifyTaskEntity;
+import com.sirius.model.dto.request.LockMarketPayOrderRequestDTO;
 import com.sirius.model.dto.request.PayActivityEntity;
 import com.sirius.model.dto.request.PayDiscountEntity;
+import com.sirius.model.dto.response.LockMarketPayOrderResponseDTO;
 import com.sirius.model.dto.response.TradePaySettlementEntity;
+import com.sirius.model.dto.request.SettlementMarketPayOrderRequestDTO;
 import com.sirius.model.dto.request.TradePaySuccessEntity;
 import com.sirius.model.dto.request.UserEntity;
 import com.sirius.model.vo.GroupBuyProgressVO;
+import com.sirius.model.dto.request.MarketProductEntity;
+import com.sirius.model.vo.GroupBuyActivityDiscountVO;
+import com.sirius.model.vo.TrialBalanceEntity;
+import com.sirius.model.vo.NotifyConfigVO;
+import com.sirius.model.enums.NotifyTypeEnumVO;
+import com.sirius.service.market.IMarketService;
+import org.apache.commons.lang3.StringUtils;
+import java.util.Objects;
 import com.sirius.repository.TradeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +47,9 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
     @Resource
     private ITradePort port;
 
+    @Resource
+    private IMarketService marketService;
+
     @Override
     public MarketPayOrderEntity queryNoPayMarketPayOrderByOutTradeNo(String userId, String outTradeNo) {
         log.info("????-?????????:{} outTradeNo:{}", userId, outTradeNo);
@@ -46,6 +60,71 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
     public GroupBuyProgressVO queryGroupBuyProgress(String teamId) {
         log.info("????-??????:{}", teamId);
         return repository.queryGroupBuyProgress(teamId);
+    }
+
+    @Override
+    public LockMarketPayOrderResponseDTO lockMarketPayOrder(LockMarketPayOrderRequestDTO request)
+            throws Exception {
+        validateLockRequest(request);
+
+        MarketPayOrderEntity existing = queryNoPayMarketPayOrderByOutTradeNo(
+                request.getUserId(), request.getOutTradeNo());
+        if (existing != null) {
+            return toLockResponse(existing);
+        }
+
+        if (request.getTeamId() != null) {
+            GroupBuyProgressVO progress = queryGroupBuyProgress(request.getTeamId());
+            if (progress != null && Objects.equals(progress.getTargetCount(), progress.getLockCount())) {
+                throw new AppException(ResponseCode.E0006);
+            }
+        }
+
+        TrialBalanceEntity trial = marketService.indexMarketTrial(MarketProductEntity.builder()
+                .activityId(request.getActivityId())
+                .userId(request.getUserId())
+                .goodsId(request.getGoodsId())
+                .source(request.getSource())
+                .channel(request.getChannel())
+                .build());
+        if (!Boolean.TRUE.equals(trial.getIsVisible()) || !Boolean.TRUE.equals(trial.getIsEnable())) {
+            throw new AppException(ResponseCode.E0007);
+        }
+
+        LockMarketPayOrderRequestDTO.NotifyConfigVO notify = request.getNotifyConfigVO();
+        if (notify == null || StringUtils.isBlank(notify.getNotifyType())
+                || (!"HTTP".equals(notify.getNotifyType()) && !"MQ".equals(notify.getNotifyType()))
+                || ("HTTP".equals(notify.getNotifyType()) && StringUtils.isBlank(notify.getNotifyUrl()))) {
+            throw new AppException(ResponseCode.ILLEGAL_PARAMETER);
+        }
+
+        GroupBuyActivityDiscountVO discount = trial.getGroupBuyActivityDiscountVO();
+        MarketPayOrderEntity result = lockMarketPayOrder(
+                UserEntity.builder().userId(request.getUserId()).build(),
+                PayActivityEntity.builder()
+                        .teamId(request.getTeamId())
+                        .activityId(request.getActivityId())
+                        .activityName(discount.getActivityName())
+                        .startTime(discount.getStartTime())
+                        .endTime(discount.getEndTime())
+                        .targetCount(discount.getTarget())
+                        .validTime(discount.getValidTime())
+                        .build(),
+                PayDiscountEntity.builder()
+                        .source(request.getSource())
+                        .channel(request.getChannel())
+                        .goodsId(request.getGoodsId())
+                        .goodsName(trial.getGoodsName())
+                        .originalPrice(trial.getOriginalPrice())
+                        .deductionPrice(trial.getDeductionPrice())
+                        .payPrice(trial.getPayPrice())
+                        .outTradeNo(request.getOutTradeNo())
+                        .notifyConfigVO(NotifyConfigVO.builder()
+                                .notifyType(NotifyTypeEnumVO.valueOf(notify.getNotifyType()))
+                                .notifyUrl(notify.getNotifyUrl())
+                                .build())
+                        .build());
+        return toLockResponse(result);
     }
 
     @Override
@@ -68,6 +147,25 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
 
         return repository.lockMarketPayOrder(
                 userEntity, payActivityEntity, payDiscountEntity, userTakeOrderCount);
+    }
+
+    @Override
+    public TradePaySettlementEntity settlementMarketPayOrder(
+            SettlementMarketPayOrderRequestDTO request) throws Exception {
+        if (request == null || StringUtils.isBlank(request.getUserId())
+                || StringUtils.isBlank(request.getSource())
+                || StringUtils.isBlank(request.getChannel())
+                || StringUtils.isBlank(request.getOutTradeNo())
+                || request.getOutTradeTime() == null) {
+            throw new AppException(ResponseCode.ILLEGAL_PARAMETER);
+        }
+        return settlementMarketPayOrder(TradePaySuccessEntity.builder()
+                .source(request.getSource())
+                .channel(request.getChannel())
+                .userId(request.getUserId())
+                .outTradeNo(request.getOutTradeNo())
+                .outTradeTime(request.getOutTradeTime())
+                .build());
     }
 
     @Override
@@ -143,6 +241,27 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
         result.put("retryCount", retry);
         result.put("errorCount", error);
         return result;
+    }
+
+    private void validateLockRequest(LockMarketPayOrderRequestDTO request) {
+        if (request == null || StringUtils.isBlank(request.getUserId())
+                || StringUtils.isBlank(request.getSource())
+                || StringUtils.isBlank(request.getOutTradeNo())
+                || StringUtils.isBlank(request.getChannel())
+                || StringUtils.isBlank(request.getGoodsId())
+                || request.getActivityId() == null) {
+            throw new AppException(ResponseCode.ILLEGAL_PARAMETER);
+        }
+    }
+
+    private LockMarketPayOrderResponseDTO toLockResponse(MarketPayOrderEntity order) {
+        return LockMarketPayOrderResponseDTO.builder()
+                .orderId(order.getOrderId())
+                .originalPrice(order.getOriginalPrice())
+                .deductionPrice(order.getDeductionPrice())
+                .payPrice(order.getPayPrice())
+                .tradeOrderStatus(order.getTradeOrderStatusEnumVO().getCode())
+                .build();
     }
 
     private void checkActivity(GroupBuyActivityEntity activity, Long activityId) {

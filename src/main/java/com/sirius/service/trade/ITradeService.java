@@ -2,9 +2,12 @@ package com.sirius.service.trade;
 
 import com.sirius.model.vo.GroupBuyProgressVO;
 import com.sirius.model.vo.MarketPayOrderEntity;
+import com.sirius.model.dto.request.LockMarketPayOrderRequestDTO;
 import com.sirius.model.dto.request.PayActivityEntity;
 import com.sirius.model.dto.request.PayDiscountEntity;
+import com.sirius.model.dto.response.LockMarketPayOrderResponseDTO;
 import com.sirius.model.dto.response.TradePaySettlementEntity;
+import com.sirius.model.dto.request.SettlementMarketPayOrderRequestDTO;
 import com.sirius.model.dto.request.TradePaySuccessEntity;
 import com.sirius.model.dto.request.UserEntity;
 
@@ -16,8 +19,14 @@ public interface ITradeService {
 
     GroupBuyProgressVO queryGroupBuyProgress(String teamId);
 
+    LockMarketPayOrderResponseDTO lockMarketPayOrder(LockMarketPayOrderRequestDTO request)
+            throws Exception;
+
     MarketPayOrderEntity lockMarketPayOrder(
             UserEntity userEntity, PayActivityEntity payActivityEntity, PayDiscountEntity payDiscountEntity)
+            throws Exception;
+
+    TradePaySettlementEntity settlementMarketPayOrder(SettlementMarketPayOrderRequestDTO request)
             throws Exception;
 
     TradePaySettlementEntity settlementMarketPayOrder(TradePaySuccessEntity tradePaySuccessEntity)
