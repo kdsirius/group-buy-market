@@ -2,7 +2,7 @@ package com.sirius.test.domain.trade;
 
 import com.sirius.service.trade.ITradeService;
 import com.alibaba.fastjson.JSON;
-import com.sirius.model.dto.response.SettlementResult;
+import com.sirius.model.dto.response.SettlementMarketPayOrderResponseDTO;
 import com.sirius.model.dto.request.SettlementMarketPayOrderRequestDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class TradeServiceSettlementTest {
         tradePaySuccessEntity.setOutTradeNo("909000098119");
         tradePaySuccessEntity.setOutTradeTime(new Date());
 
-        SettlementResult tradePaySettlementEntity = tradeService.settlementMarketPayOrder(tradePaySuccessEntity);
+        SettlementMarketPayOrderResponseDTO tradePaySettlementEntity = tradeService.settlementMarketPayOrder(tradePaySuccessEntity);
 
         log.info("请求参数：{}", JSON.toJSONString(tradePaySuccessEntity));
         log.info("响应结果：{}", JSON.toJSONString(tradePaySettlementEntity));

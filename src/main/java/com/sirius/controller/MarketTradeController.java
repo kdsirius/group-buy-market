@@ -5,7 +5,6 @@ import com.sirius.model.dto.request.SettlementMarketPayOrderRequestDTO;
 import com.sirius.model.dto.response.LockMarketPayOrderResponseDTO;
 import com.sirius.model.dto.response.Response;
 import com.sirius.model.dto.response.SettlementMarketPayOrderResponseDTO;
-import com.sirius.model.dto.response.SettlementResult;
 import com.sirius.service.trade.ITradeService;
 import com.sirius.common.enums.ResponseCode;
 import com.sirius.common.exception.AppException;
@@ -51,11 +50,11 @@ public class MarketTradeController {
     public Response<SettlementMarketPayOrderResponseDTO> settlementMarketPayOrder(
             @RequestBody SettlementMarketPayOrderRequestDTO request) {
         try {
-            SettlementResult result = tradeService.settlementMarketPayOrder(request);
+            SettlementMarketPayOrderResponseDTO result = tradeService.settlementMarketPayOrder(request);
             return Response.<SettlementMarketPayOrderResponseDTO>builder()
                     .code(ResponseCode.SUCCESS.getCode())
                     .info(ResponseCode.SUCCESS.getInfo())
-                    .data(toResponse(result))
+                    .data(result)
                     .build();
         } catch (AppException e) {
             return Response.<SettlementMarketPayOrderResponseDTO>builder()
@@ -71,12 +70,4 @@ public class MarketTradeController {
         }
     }
 
-    private SettlementMarketPayOrderResponseDTO toResponse(SettlementResult result) {
-        return SettlementMarketPayOrderResponseDTO.builder()
-                .userId(result.getUserId())
-                .teamId(result.getTeamId())
-                .activityId(result.getActivityId())
-                .outTradeNo(result.getOutTradeNo())
-                .build();
-    }
 }

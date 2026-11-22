@@ -6,7 +6,7 @@ import com.sirius.model.dto.request.LockMarketPayOrderRequestDTO;
 import com.sirius.model.dto.request.PayActivityEntity;
 import com.sirius.model.dto.request.PayDiscountEntity;
 import com.sirius.model.dto.response.LockMarketPayOrderResponseDTO;
-import com.sirius.model.dto.response.SettlementResult;
+import com.sirius.model.dto.response.SettlementMarketPayOrderResponseDTO;
 import com.sirius.model.dto.request.SettlementMarketPayOrderRequestDTO;
 
 import java.util.Map;
@@ -24,7 +24,7 @@ public interface ITradeService {
             String userId, PayActivityEntity payActivityEntity, PayDiscountEntity payDiscountEntity)
             throws Exception;
 
-    SettlementResult settlementMarketPayOrder(SettlementMarketPayOrderRequestDTO request)
+    SettlementMarketPayOrderResponseDTO settlementMarketPayOrder(SettlementMarketPayOrderRequestDTO request)
             throws Exception;
 
 

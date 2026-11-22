@@ -13,7 +13,7 @@ import com.sirius.model.dto.request.LockMarketPayOrderRequestDTO;
 import com.sirius.model.dto.request.PayActivityEntity;
 import com.sirius.model.dto.request.PayDiscountEntity;
 import com.sirius.model.dto.response.LockMarketPayOrderResponseDTO;
-import com.sirius.model.dto.response.SettlementResult;
+import com.sirius.model.dto.response.SettlementMarketPayOrderResponseDTO;
 import com.sirius.model.dto.request.SettlementMarketPayOrderRequestDTO;
 import com.sirius.model.vo.GroupBuyProgressVO;
 import com.sirius.model.dto.request.MarketProductRequest;
@@ -148,7 +148,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
     }
 
     @Override
-    public SettlementResult settlementMarketPayOrder(
+    public SettlementMarketPayOrderResponseDTO settlementMarketPayOrder(
             SettlementMarketPayOrderRequestDTO request) throws Exception {
         if (request == null || StringUtils.isBlank(request.getUserId())
                 || StringUtils.isBlank(request.getSource())
@@ -182,9 +182,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
             execSettlementNotifyJob(team.getTeamId());
         }
 
-        return SettlementResult.builder()
-                .source(request.getSource())
-                .channel(request.getChannel())
+        return SettlementMarketPayOrderResponseDTO.builder()
                 .userId(request.getUserId())
                 .teamId(team.getTeamId())
                 .activityId(team.getActivityId())
