@@ -38,8 +38,8 @@ import java.util.stream.Collectors;
 
 /**
  * @author Sirius
- * @description 交易仓储服务
- * @date 2026年09月22日 16:32
+ * @description 浜ゆ槗浠撳偍鏈嶅姟
+ * @date 2026骞?9鏈?2鏃?16:32
  */
 @Repository
 public class TradeRepository {
@@ -70,7 +70,7 @@ public class TradeRepository {
         return toNotifyEntities(notifyTaskDao.queryUnExecutedNotifyTaskByTeamId(teamId));
     }
 
-    // 两个查询共用映射，避免同一字段在两处漏传。
+    // 涓や釜鏌ヨ鍏辩敤鏄犲皠锛岄伩鍏嶅悓涓€瀛楁鍦ㄤ袱澶勬紡浼犮€?
     private List<NotifyTaskEntity> toNotifyEntities(List<NotifyTask> tasks) {
         return tasks.stream()
                 .map(task -> NotifyTaskEntity.builder()
@@ -117,14 +117,14 @@ public class TradeRepository {
     }
 
     @Transactional(timeout = 500)
-    public MarketPayOrderEntity lockMarketPayOrder(UserEntity userEntity, PayActivityEntity payActivityEntity,
+    public MarketPayOrderEntity lockMarketPayOrder(String userId, PayActivityEntity payActivityEntity,
                                                         PayDiscountEntity payDiscountEntity, Integer userTakeOrderCount) {
         NotifyConfigVO notifyConfigVO = payDiscountEntity.getNotifyConfigVO();
 
-        // 判断是否有团 - teamId为空 -> 新团、teamId不为空 -> 老团
+        // 鍒ゆ柇鏄惁鏈夊洟 - teamId涓虹┖ -> 鏂板洟銆乼eamId涓嶄负绌?-> 鑰佸洟
         String teamId = payActivityEntity.getTeamId();
         if (StringUtils.isBlank(teamId)) {
-            // 替代公司使用的雪花ID
+            // 鏇夸唬鍏徃浣跨敤鐨勯洩鑺盜D
             teamId = RandomStringUtils.randomNumeric(8);
 
             Date validStartTime = new Date();
@@ -134,7 +134,7 @@ public class TradeRepository {
             Date validEndTime = calendar.getTime();
 
 
-            // 构建拼团订单
+            // 鏋勫缓鎷煎洟璁㈠崟
             GroupBuyOrder groupBuyOrder = GroupBuyOrder.builder()
                     .teamId(teamId)
                     .activityId(payActivityEntity.getActivityId())
@@ -152,10 +152,10 @@ public class TradeRepository {
                     .notifyUrl(notifyConfigVO.getNotifyUrl())
                     .build();
 
-            // 写入记录
+            // 鍐欏叆璁板綍
             groupBuyOrderDao.insert(groupBuyOrder);
         } else {
-            // 如果不等于1则表示拼团已满，抛出异常
+            // 濡傛灉涓嶇瓑浜?鍒欒〃绀烘嫾鍥㈠凡婊★紝鎶涘嚭寮傚父
             int updateAddTargetCount = groupBuyOrderDao.updateAddLockCount(teamId);
             if (1 != updateAddTargetCount) {
                 throw new AppException(ResponseCode.E0005);
@@ -163,7 +163,7 @@ public class TradeRepository {
         }
         String orderId = RandomStringUtils.randomNumeric(12);
         GroupBuyOrderList groupBuyOrderList = GroupBuyOrderList.builder()
-                .userId(userEntity.getUserId())
+                .userId(userId)
                 .teamId(teamId)
                 .orderId(orderId)
                 .activityId(payActivityEntity.getActivityId())
@@ -177,12 +177,12 @@ public class TradeRepository {
                 .payPrice(payDiscountEntity.getPayPrice())
                 .status(TradeOrderStatusEnumVO.CREATE.getCode())
                 .outTradeNo(payDiscountEntity.getOutTradeNo())
-                // 构建 bizId 唯一值；活动id_用户id_参与次数增加
-                .bizId(payActivityEntity.getActivityId() + Constants.UNDERLINE + userEntity.getUserId() + Constants.UNDERLINE + (userTakeOrderCount + 1))
+                // 鏋勫缓 bizId 鍞竴鍊硷紱娲诲姩id_鐢ㄦ埛id_鍙備笌娆℃暟澧炲姞
+                .bizId(payActivityEntity.getActivityId() + Constants.UNDERLINE + userId + Constants.UNDERLINE + (userTakeOrderCount + 1))
                 .build();
 
         try {
-            // 写入拼团记录
+            // 鍐欏叆鎷煎洟璁板綍
             groupBuyOrderListDao.insert(groupBuyOrderList);
         } catch (Exception e) {
             throw new AppException(ResponseCode.INDEX_EXCEPTION);
@@ -254,34 +254,34 @@ public class TradeRepository {
     }
 
     @Transactional(timeout = 500)
-    public boolean settlementMarketPayOrder(UserEntity userEntity, GroupBuyTeamEntity groupBuyTeamEntity,
-                                                      TradePaySuccessEntity tradePaySuccessEntity) {
+    public boolean settlementMarketPayOrder(String userId, GroupBuyTeamEntity groupBuyTeamEntity,
+                                                      SettlementMarketPayOrderRequestDTO tradePaySuccessEntity) {
         NotifyConfigVO notifyConfigVO = groupBuyTeamEntity.getNotifyConfigVO();
-        // 1. 更新拼团订单明细状态
+        // 1. 鏇存柊鎷煎洟璁㈠崟鏄庣粏鐘舵€?
         GroupBuyOrderList groupBuyOrderListReq = new GroupBuyOrderList();
-        groupBuyOrderListReq.setUserId(userEntity.getUserId());
+        groupBuyOrderListReq.setUserId(userId);
         groupBuyOrderListReq.setOutTradeNo(tradePaySuccessEntity.getOutTradeNo());
         groupBuyOrderListReq.setOutTradeTime(tradePaySuccessEntity.getOutTradeTime());
         int updateOrderListStatusCount = groupBuyOrderListDao.updateOrderListStatus2COMPLETE(groupBuyOrderListReq);
         if (1 != updateOrderListStatusCount) {
             throw new AppException(ResponseCode.UPDATE_ZERO);
         }
-        // 2. 更新拼团达成数量
+        // 2. 鏇存柊鎷煎洟杈炬垚鏁伴噺
         int updateAddCount = groupBuyOrderDao.updateAddCompleteCount(groupBuyTeamEntity.getTeamId());
         if (1 != updateAddCount) {
             throw new AppException(ResponseCode.UPDATE_ZERO);
         }
-        // 3. 更新拼团完成状态
+        // 3. 鏇存柊鎷煎洟瀹屾垚鐘舵€?
         if (groupBuyTeamEntity.getTargetCount() - groupBuyTeamEntity.getCompleteCount() == 1) {
             int updateOrderStatusCount = groupBuyOrderDao.updateOrderStatus2COMPLETE(groupBuyTeamEntity.getTeamId());
             if (1 != updateOrderStatusCount) {
                 throw new AppException(ResponseCode.UPDATE_ZERO);
             }
 
-            // 查询拼团交易完成外部单号列表
+            // 鏌ヨ鎷煎洟浜ゆ槗瀹屾垚澶栭儴鍗曞彿鍒楄〃
             List<String> outTradeNoList = groupBuyOrderListDao.queryGroupBuyCompleteOrderOutTradeNoListByTeamId(groupBuyTeamEntity.getTeamId());
 
-            // 拼团完成写入回调任务记录
+            // 鎷煎洟瀹屾垚鍐欏叆鍥炶皟浠诲姟璁板綍
             NotifyTask notifyTask = new NotifyTask();
             notifyTask.setActivityId(groupBuyTeamEntity.getActivityId());
             notifyTask.setTeamId(groupBuyTeamEntity.getTeamId());

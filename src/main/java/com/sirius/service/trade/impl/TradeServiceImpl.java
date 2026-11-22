@@ -15,8 +15,6 @@ import com.sirius.model.dto.request.PayDiscountEntity;
 import com.sirius.model.dto.response.LockMarketPayOrderResponseDTO;
 import com.sirius.model.dto.response.TradePaySettlementEntity;
 import com.sirius.model.dto.request.SettlementMarketPayOrderRequestDTO;
-import com.sirius.model.dto.request.TradePaySuccessEntity;
-import com.sirius.model.dto.request.UserEntity;
 import com.sirius.model.vo.GroupBuyProgressVO;
 import com.sirius.model.dto.request.MarketProductEntity;
 import com.sirius.model.vo.GroupBuyActivityDiscountVO;
@@ -100,7 +98,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
 
         GroupBuyActivityDiscountVO discount = trial.getGroupBuyActivityDiscountVO();
         MarketPayOrderEntity result = lockMarketPayOrder(
-                UserEntity.builder().userId(request.getUserId()).build(),
+                request.getUserId(),
                 PayActivityEntity.builder()
                         .teamId(request.getTeamId())
                         .activityId(request.getActivityId())
@@ -129,24 +127,24 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
 
     @Override
     public MarketPayOrderEntity lockMarketPayOrder(
-            UserEntity userEntity, PayActivityEntity payActivityEntity, PayDiscountEntity payDiscountEntity)
+            String userId, PayActivityEntity payActivityEntity, PayDiscountEntity payDiscountEntity)
             throws Exception {
         log.info("????-??????????:{} activityId:{} goodsId:{}",
-                userEntity.getUserId(), payActivityEntity.getActivityId(), payDiscountEntity.getGoodsId());
+                userId, payActivityEntity.getActivityId(), payDiscountEntity.getGoodsId());
 
         GroupBuyActivityEntity activity =
                 repository.queryGroupBuyActivityEntityByActivityId(payActivityEntity.getActivityId());
         checkActivity(activity, payActivityEntity.getActivityId());
 
         Integer userTakeOrderCount = repository.queryOrderCountByActivityId(
-                payActivityEntity.getActivityId(), userEntity.getUserId());
+                payActivityEntity.getActivityId(), userId);
         if (activity.getTakeLimitCount() != null
                 && userTakeOrderCount >= activity.getTakeLimitCount()) {
             throw new AppException(ResponseCode.E0103);
         }
 
         return repository.lockMarketPayOrder(
-                userEntity, payActivityEntity, payDiscountEntity, userTakeOrderCount);
+                userId, payActivityEntity, payDiscountEntity, userTakeOrderCount);
     }
 
     @Override
@@ -159,52 +157,38 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
                 || request.getOutTradeTime() == null) {
             throw new AppException(ResponseCode.ILLEGAL_PARAMETER);
         }
-        return settlementMarketPayOrder(TradePaySuccessEntity.builder()
-                .source(request.getSource())
-                .channel(request.getChannel())
-                .userId(request.getUserId())
-                .outTradeNo(request.getOutTradeNo())
-                .outTradeTime(request.getOutTradeTime())
-                .build());
-    }
 
-    @Override
-    public TradePaySettlementEntity settlementMarketPayOrder(
-            TradePaySuccessEntity tradePaySuccessEntity) throws Exception {
         log.info("????-?????? userId:{} outTradeNo:{}",
-                tradePaySuccessEntity.getUserId(), tradePaySuccessEntity.getOutTradeNo());
+                request.getUserId(), request.getOutTradeNo());
 
-        if (repository.isSCBlackIntercept(
-                tradePaySuccessEntity.getSource(), tradePaySuccessEntity.getChannel())) {
+        if (repository.isSCBlackIntercept(request.getSource(), request.getChannel())) {
             throw new AppException(ResponseCode.E0105);
         }
 
         MarketPayOrderEntity order = repository.queryMarketPayOrderEntityByOutTradeNo(
-                tradePaySuccessEntity.getUserId(), tradePaySuccessEntity.getOutTradeNo());
+                request.getUserId(), request.getOutTradeNo());
         if (order == null) {
             throw new AppException(ResponseCode.E0104);
         }
 
         GroupBuyTeamEntity team = repository.queryGroupBuyTeamByTeamId(order.getTeamId());
-        if (!tradePaySuccessEntity.getOutTradeTime().before(team.getValidEndTime())) {
+        if (!request.getOutTradeTime().before(team.getValidEndTime())) {
             throw new AppException(ResponseCode.E0106);
         }
 
         boolean isNotify = repository.settlementMarketPayOrder(
-                UserEntity.builder().userId(tradePaySuccessEntity.getUserId()).build(),
-                team,
-                tradePaySuccessEntity);
+                request.getUserId(), team, request);
         if (isNotify) {
             execSettlementNotifyJob(team.getTeamId());
         }
 
         return TradePaySettlementEntity.builder()
-                .source(tradePaySuccessEntity.getSource())
-                .channel(tradePaySuccessEntity.getChannel())
-                .userId(tradePaySuccessEntity.getUserId())
+                .source(request.getSource())
+                .channel(request.getChannel())
+                .userId(request.getUserId())
                 .teamId(team.getTeamId())
                 .activityId(team.getActivityId())
-                .outTradeNo(tradePaySuccessEntity.getOutTradeNo())
+                .outTradeNo(request.getOutTradeNo())
                 .build();
     }
 

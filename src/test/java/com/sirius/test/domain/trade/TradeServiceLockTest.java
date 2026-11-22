@@ -9,7 +9,6 @@ import com.sirius.model.vo.GroupBuyActivityDiscountVO;
 import com.sirius.model.vo.MarketPayOrderEntity;
 import com.sirius.model.dto.request.PayActivityEntity;
 import com.sirius.model.dto.request.PayDiscountEntity;
-import com.sirius.model.dto.request.UserEntity;
 import com.sirius.model.vo.NotifyConfigVO;
 import com.sirius.model.enums.NotifyTypeEnumVO;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +65,7 @@ public class TradeServiceLockTest {
 
         // 2. 锁定，营销预支付订单；商品下单前，预购锁定。
         MarketPayOrderEntity marketPayOrderEntityNew = tradeService.lockMarketPayOrder(
-                UserEntity.builder().userId(userId).build(),
+                userId,
                 PayActivityEntity.builder()
                         .teamId(null)
                         .activityId(groupBuyActivityDiscountVO.getActivityId())

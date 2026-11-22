@@ -3,7 +3,7 @@ package com.sirius.test.domain.trade;
 import com.sirius.service.trade.ITradeService;
 import com.alibaba.fastjson.JSON;
 import com.sirius.model.dto.response.TradePaySettlementEntity;
-import com.sirius.model.dto.request.TradePaySuccessEntity;
+import com.sirius.model.dto.request.SettlementMarketPayOrderRequestDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +28,7 @@ public class TradeServiceSettlementTest {
 
     @Test
     public void test_settlementMarketPayOrder() throws Exception {
-        TradePaySuccessEntity tradePaySuccessEntity = new TradePaySuccessEntity();
+        SettlementMarketPayOrderRequestDTO tradePaySuccessEntity = new SettlementMarketPayOrderRequestDTO();
         tradePaySuccessEntity.setSource("s01");
         tradePaySuccessEntity.setChannel("c01");
         tradePaySuccessEntity.setUserId("xfg01");
