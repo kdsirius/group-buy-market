@@ -5,35 +5,34 @@ import com.sirius.common.enums.ActivityStatus;
 import com.sirius.common.enums.NotifyResult;
 import com.sirius.common.enums.ResponseCode;
 import com.sirius.common.exception.AppException;
-import com.sirius.model.vo.GroupBuyActivityVO;
-import com.sirius.model.vo.GroupBuyTeamVO;
-import com.sirius.model.vo.MarketPayOrderVO;
-import com.sirius.model.vo.NotifyTaskVO;
+import com.sirius.model.PayActivity;
+import com.sirius.model.PayDiscount;
 import com.sirius.model.dto.request.LockMarketPayOrderRequestDTO;
-import com.sirius.model.dto.request.PayActivityEntity;
-import com.sirius.model.dto.request.PayDiscountEntity;
+import com.sirius.model.dto.request.MarketProductRequest;
+import com.sirius.model.dto.request.SettlementMarketPayOrderRequestDTO;
 import com.sirius.model.dto.response.LockMarketPayOrderResponseDTO;
 import com.sirius.model.dto.response.SettlementMarketPayOrderResponseDTO;
-import com.sirius.model.dto.request.SettlementMarketPayOrderRequestDTO;
-import com.sirius.model.vo.GroupBuyProgressVO;
-import com.sirius.model.dto.request.MarketProductRequest;
-import com.sirius.model.vo.GroupBuyActivityDiscountVO;
-import com.sirius.model.vo.TrialBalanceVO;
-import com.sirius.model.vo.NotifyConfigVO;
 import com.sirius.model.enums.NotifyType;
-import com.sirius.service.market.IMarketService;
-import org.apache.commons.lang3.StringUtils;
-import java.util.Objects;
+import com.sirius.model.vo.GroupBuyActivityDiscountVO;
+import com.sirius.model.vo.GroupBuyActivityVO;
+import com.sirius.model.vo.GroupBuyProgressVO;
+import com.sirius.model.vo.GroupBuyTeamVO;
+import com.sirius.model.vo.MarketPayOrderVO;
+import com.sirius.model.vo.NotifyConfigVO;
+import com.sirius.model.vo.NotifyTaskVO;
+import com.sirius.model.vo.TrialBalanceVO;
 import com.sirius.repository.TradeRepository;
+import com.sirius.service.market.IMarketService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -49,12 +48,12 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
     private IMarketService marketService;
 
     private MarketPayOrderVO queryNoPayMarketPayOrderByOutTradeNo(String userId, String outTradeNo) {
-        log.info("????-?????????:{} outTradeNo:{}", userId, outTradeNo);
+        log.info("拼团交易-查询未支付营销订单:{} outTradeNo:{}", userId, outTradeNo);
         return repository.queryMarketPayOrderVOByOutTradeNo(userId, outTradeNo);
     }
 
     private GroupBuyProgressVO queryGroupBuyProgress(String teamId) {
-        log.info("????-??????:{}", teamId);
+        log.info("拼团交易-查询拼单进度:{}", teamId);
         return repository.queryGroupBuyProgress(teamId);
     }
 
@@ -97,7 +96,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
         GroupBuyActivityDiscountVO discount = trial.getGroupBuyActivityDiscountVO();
         MarketPayOrderVO result = lockMarketPayOrder(
                 request.getUserId(),
-                PayActivityEntity.builder()
+                PayActivity.builder()
                         .teamId(request.getTeamId())
                         .activityId(request.getActivityId())
                         .activityName(discount.getActivityName())
@@ -106,7 +105,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
                         .targetCount(discount.getTarget())
                         .validTime(discount.getValidTime())
                         .build(),
-                PayDiscountEntity.builder()
+                PayDiscount.builder()
                         .source(request.getSource())
                         .channel(request.getChannel())
                         .goodsId(request.getGoodsId())
@@ -124,24 +123,24 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
     }
 
     private MarketPayOrderVO lockMarketPayOrder(
-            String userId, PayActivityEntity payActivityEntity, PayDiscountEntity payDiscountEntity)
+            String userId, PayActivity payActivity, PayDiscount payDiscount)
             throws Exception {
-        log.info("????-??????????:{} activityId:{} goodsId:{}",
-                userId, payActivityEntity.getActivityId(), payDiscountEntity.getGoodsId());
+        log.info("拼团交易-锁定营销优惠支付订单:{} activityId:{} goodsId:{}",
+                userId, payActivity.getActivityId(), payDiscount.getGoodsId());
 
         GroupBuyActivityVO activity =
-                repository.queryGroupBuyActivityVOByActivityId(payActivityEntity.getActivityId());
-        checkActivity(activity, payActivityEntity.getActivityId());
+                repository.queryGroupBuyActivityVOByActivityId(payActivity.getActivityId());
+        checkActivity(activity, payActivity.getActivityId());
 
         Integer userTakeOrderCount = repository.queryOrderCountByActivityId(
-                payActivityEntity.getActivityId(), userId);
+                payActivity.getActivityId(), userId);
         if (activity.getTakeLimitCount() != null
                 && userTakeOrderCount >= activity.getTakeLimitCount()) {
             throw new AppException(ResponseCode.E0103);
         }
 
         return repository.lockMarketPayOrder(
-                userId, payActivityEntity, payDiscountEntity, userTakeOrderCount);
+                userId, payActivity, payDiscount, userTakeOrderCount);
     }
 
     @Override
@@ -155,7 +154,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
             throw new AppException(ResponseCode.ILLEGAL_PARAMETER);
         }
 
-        log.info("????-?????? userId:{} outTradeNo:{}",
+        log.info("拼团交易-交易订单结算 userId:{} outTradeNo:{}",
                 request.getUserId(), request.getOutTradeNo());
 
         if (repository.isSCBlackIntercept(request.getSource(), request.getChannel())) {

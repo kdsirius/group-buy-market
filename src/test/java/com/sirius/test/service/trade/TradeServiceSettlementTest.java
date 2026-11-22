@@ -1,4 +1,4 @@
-package com.sirius.test.domain.trade;
+package com.sirius.test.service.trade;
 
 import com.sirius.service.trade.ITradeService;
 import com.alibaba.fastjson.JSON;

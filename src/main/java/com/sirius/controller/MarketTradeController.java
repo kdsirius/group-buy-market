@@ -38,7 +38,7 @@ public class MarketTradeController {
                     .info(e.getInfo())
                     .build();
         } catch (Exception e) {
-            log.error("??????????", e);
+            log.error("营销交易锁单失败", e);
             return Response.<LockMarketPayOrderResponseDTO>builder()
                     .code(ResponseCode.UN_ERROR.getCode())
                     .info(ResponseCode.UN_ERROR.getInfo())
@@ -62,7 +62,7 @@ public class MarketTradeController {
                     .info(e.getInfo())
                     .build();
         } catch (Exception e) {
-            log.error("????????", e);
+            log.error("营销交易结算失败", e);
             return Response.<SettlementMarketPayOrderResponseDTO>builder()
                     .code(ResponseCode.UN_ERROR.getCode())
                     .info(ResponseCode.UN_ERROR.getInfo())

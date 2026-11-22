@@ -1,4 +1,4 @@
-package com.sirius.test.infrastructure.dao;
+package com.sirius.test.mapper;
 
 import com.sirius.mapper.IGroupBuyDiscountDao;
 import lombok.extern.slf4j.Slf4j;

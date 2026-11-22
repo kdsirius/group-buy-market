@@ -1,4 +1,4 @@
-package com.sirius.test.infrastructure.dao;
+package com.sirius.test.mapper;
 
 import com.sirius.mapper.IGroupBuyActivityDao;
 import com.sirius.model.po.GroupBuyActivity;

@@ -1,4 +1,4 @@
-package com.sirius.test.trigger;
+package com.sirius.test.controller;
 
 import com.sirius.controller.MarketTradeController;
 import com.alibaba.fastjson.JSON;

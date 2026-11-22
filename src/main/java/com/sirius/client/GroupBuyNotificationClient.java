@@ -1,13 +1,10 @@
 package com.sirius.client;
 
-
-import com.sirius.client.IGroupBuyNotificationClient;
-import com.sirius.model.vo.NotifyTaskVO;
-import com.sirius.model.enums.NotifyType;
-import com.sirius.mq.publisher.RabbitMessagePublisher;
-import com.sirius.client.GroupBuyNotifyService;
 import com.sirius.client.redis.IRedisService;
 import com.sirius.common.enums.NotifyResult;
+import com.sirius.model.enums.NotifyType;
+import com.sirius.model.vo.NotifyTaskVO;
+import com.sirius.mq.publisher.RabbitMessagePublisher;
 import org.redisson.api.RLock;
 import org.springframework.stereotype.Service;
 

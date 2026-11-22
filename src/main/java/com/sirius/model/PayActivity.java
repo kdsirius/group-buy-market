@@ -1,4 +1,4 @@
-package com.sirius.model.dto.request;
+package com.sirius.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,15 +8,13 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 /**
- * @author Sirius
- * @description 拼团，支付活动实体对象
- * @date 2026年09月22日 16:36
+ * 拼团锁单内部活动上下文参数
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PayActivityEntity {
+public class PayActivity {
 
     /** 拼单组队ID */
     private String teamId;
@@ -30,7 +28,7 @@ public class PayActivityEntity {
     private Date endTime;
     /** 目标数量 */
     private Integer targetCount;
-    /** 校验时间 */
+    /** 有效时间（分钟） */
     private Integer validTime;
 
 }

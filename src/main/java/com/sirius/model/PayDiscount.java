@@ -1,4 +1,4 @@
-package com.sirius.model.dto.request;
+package com.sirius.model;
 
 import com.sirius.model.vo.NotifyConfigVO;
 import lombok.AllArgsConstructor;
@@ -9,15 +9,13 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 /**
- * @author Sirius
- * @description 拼团，支付优惠实体对象
- * @date 2026年09月22日 16:38
+ * 拼团锁单内部优惠金额快照参数
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PayDiscountEntity {
+public class PayDiscount {
 
     /** 来源 */
     private String source;
@@ -35,7 +33,7 @@ public class PayDiscountEntity {
     private BigDecimal payPrice;
     /** 外部交易单号-确保外部调用唯一幂等 */
     private String outTradeNo;
-    /** 开团时约定的通知地址。 */
+    /** 开团时约定的通知配置 */
     private NotifyConfigVO notifyConfigVO;
 
 }
