@@ -125,8 +125,7 @@ public class TradeServiceImpl implements com.sirius.service.trade.ITradeService 
         return toLockResponse(result);
     }
 
-    @Override
-    public MarketPayOrderVO lockMarketPayOrder(
+    private MarketPayOrderVO lockMarketPayOrder(
             String userId, PayActivityEntity payActivityEntity, PayDiscountEntity payDiscountEntity)
             throws Exception {
         log.info("????-??????????:{} activityId:{} goodsId:{}",

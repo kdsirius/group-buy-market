@@ -1,16 +1,9 @@
 package com.sirius.test.domain.trade;
 
-import com.sirius.service.market.IMarketService;
 import com.sirius.service.trade.ITradeService;
 import com.alibaba.fastjson.JSON;
-import com.sirius.model.dto.request.MarketProductRequest;
-import com.sirius.model.vo.TrialBalanceVO;
-import com.sirius.model.vo.GroupBuyActivityDiscountVO;
-import com.sirius.model.vo.MarketPayOrderVO;
-import com.sirius.model.dto.request.PayActivityEntity;
-import com.sirius.model.dto.request.PayDiscountEntity;
-import com.sirius.model.vo.NotifyConfigVO;
-import com.sirius.model.enums.NotifyType;
+import com.sirius.model.dto.request.LockMarketPayOrderRequestDTO;
+import com.sirius.model.dto.response.LockMarketPayOrderResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,9 +23,6 @@ import javax.annotation.Resource;
 public class TradeServiceLockTest {
 
     @Resource
-    private IMarketService indexGroupBuyMarketService;
-
-    @Resource
     private ITradeService tradeService;
 
     @Test
@@ -45,52 +35,23 @@ public class TradeServiceLockTest {
         String channel = "c01";
         String outTradeNo = "909000098121";
 
-        // 1. 获取试算优惠，有【activityId】优先使用
-        TrialBalanceVO trialBalanceEntity = indexGroupBuyMarketService.indexMarketTrial(MarketProductRequest.builder()
-                .userId(userId)
-                .source(source)
-                .channel(channel)
-                .goodsId(goodsId)
-                .activityId(activityId)
-                .build());
+        // 组装锁单请求
+        LockMarketPayOrderRequestDTO request = new LockMarketPayOrderRequestDTO();
+        request.setUserId(userId);
+        request.setActivityId(activityId);
+        request.setGoodsId(goodsId);
+        request.setSource(source);
+        request.setChannel(channel);
+        request.setOutTradeNo(outTradeNo);
 
-        GroupBuyActivityDiscountVO groupBuyActivityDiscountVO = trialBalanceEntity.getGroupBuyActivityDiscountVO();
+        LockMarketPayOrderRequestDTO.NotifyConfigVO notifyConfig =
+                new LockMarketPayOrderRequestDTO.NotifyConfigVO();
+        notifyConfig.setNotifyType("HTTP");
+        notifyConfig.setNotifyUrl("http://127.0.0.1:8091/api/v1/test/group_buy_notify");
+        request.setNotifyConfigVO(notifyConfig);
 
-        // 查询 outTradeNo 是否已经存在交易记录
-        MarketPayOrderVO marketPayOrderEntityOld = tradeService.queryNoPayMarketPayOrderByOutTradeNo(userId, outTradeNo);
-        if (null != marketPayOrderEntityOld) {
-            log.info("测试结果(Old):{}", JSON.toJSONString(marketPayOrderEntityOld));
-            return;
-        }
-
-        // 2. 锁定，营销预支付订单；商品下单前，预购锁定。
-        MarketPayOrderVO marketPayOrderEntityNew = tradeService.lockMarketPayOrder(
-                userId,
-                PayActivityEntity.builder()
-                        .teamId(null)
-                        .activityId(groupBuyActivityDiscountVO.getActivityId())
-                        .activityName(groupBuyActivityDiscountVO.getActivityName())
-                        .startTime(groupBuyActivityDiscountVO.getStartTime())
-                        .endTime(groupBuyActivityDiscountVO.getEndTime())
-                        .targetCount(groupBuyActivityDiscountVO.getTarget())
-                        .validTime(groupBuyActivityDiscountVO.getValidTime())
-                        .build(),
-                PayDiscountEntity.builder()
-                        .source(source)
-                        .channel(channel)
-                        .goodsId(goodsId)
-                        .goodsName(trialBalanceEntity.getGoodsName())
-                        .originalPrice(trialBalanceEntity.getOriginalPrice())
-                        .deductionPrice(trialBalanceEntity.getDeductionPrice())
-                        .payPrice(trialBalanceEntity.getPayPrice())
-                        .outTradeNo(outTradeNo)
-                        .notifyConfigVO(NotifyConfigVO.builder()
-                                .notifyType(NotifyType.HTTP)
-                                .notifyUrl("http://127.0.0.1:8091/api/v1/test/group_buy_notify")
-                                .build())
-                        .build());
-
-        log.info("测试结果(New):{}",JSON.toJSONString(marketPayOrderEntityNew));
+        LockMarketPayOrderResponseDTO result = tradeService.lockMarketPayOrder(request);
+        log.info("??????:{}", JSON.toJSONString(result));
     }
 
 }
