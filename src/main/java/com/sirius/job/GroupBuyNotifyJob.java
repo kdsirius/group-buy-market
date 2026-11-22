@@ -1,6 +1,6 @@
 package com.sirius.job;
 
-import com.sirius.service.trade.settlement.TradeSettlementOrderService;
+import com.sirius.service.trade.ITradeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -12,12 +12,12 @@ import java.util.Map;
 @Component
 public class GroupBuyNotifyJob {
     @Resource
-    private TradeSettlementOrderService tradeSettlementOrderService;
+    private ITradeService tradeService;
 
     @Scheduled(cron = "0/15 * * * * ?")
     public void exec() {
         try {
-            Map<String, Integer> map = tradeSettlementOrderService.execSettlementNotifyJob();
+            Map<String, Integer> map = tradeService.execSettlementNotifyJob();
 
             // 日志优化，避免每15秒都发一条没用的日志
             for (Map.Entry<String, Integer> entry : map.entrySet()) {

@@ -1,21 +1,23 @@
 package com.sirius.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.sirius.model.dto.LockMarketPayOrderRequestDTO;
-import com.sirius.model.dto.LockMarketPayOrderResponseDTO;
-import com.sirius.model.dto.SettlementMarketPayOrderRequestDTO;
-import com.sirius.model.dto.SettlementMarketPayOrderResponseDTO;
-import com.sirius.model.response.Response;
-import com.sirius.model.entity.MarketProductEntity;
-import com.sirius.model.entity.TrialBalanceEntity;
-import com.sirius.model.value.GroupBuyActivityDiscountVO;
-import com.sirius.service.activity.IndexGroupBuyMarketServiceImpl;
-import com.sirius.model.entity.*;
-import com.sirius.model.value.GroupBuyProgressVO;
-import com.sirius.model.value.NotifyConfigVO;
-import com.sirius.model.value.NotifyTypeEnumVO;
-import com.sirius.service.trade.lock.TradeLockOrderService;
-import com.sirius.service.trade.settlement.TradeSettlementOrderService;
+import com.sirius.model.dto.request.LockMarketPayOrderRequestDTO;
+import com.sirius.model.dto.response.LockMarketPayOrderResponseDTO;
+import com.sirius.model.dto.request.SettlementMarketPayOrderRequestDTO;
+import com.sirius.model.dto.response.SettlementMarketPayOrderResponseDTO;
+import com.sirius.model.dto.response.Response;
+import com.sirius.model.dto.request.MarketProductEntity;
+import com.sirius.model.vo.TrialBalanceEntity;
+import com.sirius.model.vo.GroupBuyActivityDiscountVO;
+import com.sirius.service.market.IMarketService;
+import com.sirius.model.dto.request.*;
+import com.sirius.model.dto.response.*;
+import com.sirius.model.po.*;
+import com.sirius.model.vo.*;
+import com.sirius.model.vo.GroupBuyProgressVO;
+import com.sirius.model.vo.NotifyConfigVO;
+import com.sirius.model.enums.NotifyTypeEnumVO;
+import com.sirius.service.trade.ITradeService;
 import com.sirius.common.enums.ResponseCode;
 import com.sirius.common.exception.AppException;
 import lombok.extern.slf4j.Slf4j;
@@ -37,13 +39,10 @@ import java.util.Objects;
 public class MarketTradeController {
 
     @Resource
-    private IndexGroupBuyMarketServiceImpl indexGroupBuyMarketService;
+    private IMarketService indexGroupBuyMarketService;
 
     @Resource
-    private TradeLockOrderService tradeOrderService;
-
-    @Resource
-    private TradeSettlementOrderService tradeSettlementOrderService;
+    private ITradeService tradeService;
 
 
     /**
@@ -75,7 +74,7 @@ public class MarketTradeController {
             }
 
             // 查询 outTradeNo 是否已经存在交易记录
-            MarketPayOrderEntity marketPayOrderEntity = tradeOrderService.queryNoPayMarketPayOrderByOutTradeNo(userId, outTradeNo);
+            MarketPayOrderEntity marketPayOrderEntity = tradeService.queryNoPayMarketPayOrderByOutTradeNo(userId, outTradeNo);
             if (null != marketPayOrderEntity) {
                 LockMarketPayOrderResponseDTO lockMarketPayOrderResponseDTO = LockMarketPayOrderResponseDTO.builder()
                         .orderId(marketPayOrderEntity.getOrderId())
@@ -95,7 +94,7 @@ public class MarketTradeController {
 
             // 判断拼团接单是否实现了目标
             if (null != teamId) {
-                GroupBuyProgressVO groupBuyProgressVO = tradeOrderService.queryGroupBuyProgress(teamId);
+                GroupBuyProgressVO groupBuyProgressVO = tradeService.queryGroupBuyProgress(teamId);
                 if (null != groupBuyProgressVO && Objects.equals(groupBuyProgressVO.getTargetCount(), groupBuyProgressVO.getLockCount())) {
                     log.info("交易锁单拦截-拼单目标已达成:{} {}", userId, teamId);
                     return Response.<LockMarketPayOrderResponseDTO>builder()
@@ -137,7 +136,7 @@ public class MarketTradeController {
                         .build();
             }
             // 锁单
-            marketPayOrderEntity = tradeOrderService.lockMarketPayOrder(
+            marketPayOrderEntity = tradeService.lockMarketPayOrder(
                     UserEntity.builder().userId(userId).build(),
                     PayActivityEntity.builder()
                             .teamId(teamId)
@@ -210,7 +209,7 @@ public class MarketTradeController {
         }
         try {
             // Controller只转换入参；时间与订单规则仍交给已有领域服务。
-            TradePaySettlementEntity result = tradeSettlementOrderService.settlementMarketPayOrder(toTradePaySuccessEntity(request));
+            TradePaySettlementEntity result = tradeService.settlementMarketPayOrder(toTradePaySuccessEntity(request));
             return Response.<SettlementMarketPayOrderResponseDTO>builder()
                     .code(ResponseCode.SUCCESS.getCode())
                     .info(ResponseCode.SUCCESS.getInfo())

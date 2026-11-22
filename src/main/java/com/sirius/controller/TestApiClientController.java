@@ -1,6 +1,6 @@
 package com.sirius.controller;
 
-import com.sirius.model.dto.NotifyRequestDTO;
+import com.sirius.model.dto.request.NotifyRequestDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

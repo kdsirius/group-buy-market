@@ -1,6 +1,6 @@
 package com.sirius.controller;
 
-import com.sirius.model.response.Response;
+import com.sirius.model.dto.response.Response;
 import com.sirius.common.enums.ResponseCode;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RTopic;

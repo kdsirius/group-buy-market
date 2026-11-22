@@ -1,6 +1,6 @@
 package com.sirius.mapper;
 
-import com.sirius.model.entity.GroupBuyOrderList;
+import com.sirius.model.po.GroupBuyOrderList;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

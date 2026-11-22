@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sirius.mapper.IGroupBuyOrderListDao">
 
-    <resultMap id="dataMap" type="com.sirius.model.entity.GroupBuyOrderList">
+    <resultMap id="dataMap" type="com.sirius.model.po.GroupBuyOrderList">
         <id column="id" property="id"/>
         <result column="user_id" property="userId"/>
         <result column="team_id" property="teamId"/>
@@ -24,7 +24,7 @@
         <result column="out_trade_time" property="outTradeTime"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.sirius.model.entity.GroupBuyOrderList">
+    <insert id="insert" parameterType="com.sirius.model.po.GroupBuyOrderList">
         insert into group_buy_order_list(
             user_id, team_id, order_id, activity_id, start_time,
             end_time, goods_id, source, channel, original_price, deduction_price, pay_price, status,
@@ -37,7 +37,7 @@
         )
     </insert>
 
-    <select id="queryGroupBuyOrderRecordByOutTradeNo"  parameterType="com.sirius.model.entity.GroupBuyOrderList" resultMap="dataMap">
+    <select id="queryGroupBuyOrderRecordByOutTradeNo"  parameterType="com.sirius.model.po.GroupBuyOrderList" resultMap="dataMap">
         select
             user_id, team_id, order_id, activity_id, start_time,
             end_time, goods_id, source, channel, original_price, deduction_price, pay_price, status,
@@ -46,13 +46,13 @@
         where out_trade_no = #{outTradeNo} and user_id = #{userId} and status = 0
     </select>
 
-    <select id="queryOrderCountByActivityId"  parameterType="com.sirius.model.entity.GroupBuyOrderList" resultType="java.lang.Integer">
+    <select id="queryOrderCountByActivityId"  parameterType="com.sirius.model.po.GroupBuyOrderList" resultType="java.lang.Integer">
         select count(*)
         from group_buy_order_list
         where activity_id = #{activityId} and user_id = #{userId}
     </select>
 
-    <update id="updateOrderListStatus2COMPLETE" parameterType="com.sirius.model.entity.GroupBuyOrderList">
+    <update id="updateOrderListStatus2COMPLETE" parameterType="com.sirius.model.po.GroupBuyOrderList">
         update group_buy_order_list
         set status = 1,out_trade_time = #{outTradeTime}, update_time = now()
         where out_trade_no = #{outTradeNo} and user_id = #{userId}

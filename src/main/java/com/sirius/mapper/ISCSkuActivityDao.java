@@ -1,6 +1,6 @@
 package com.sirius.mapper;
 
-import com.sirius.model.entity.SCSkuActivity;
+import com.sirius.model.po.SCSkuActivity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

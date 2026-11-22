@@ -1,21 +1,22 @@
 package com.sirius.repository;
 
 import com.alibaba.fastjson.JSON;
-import com.sirius.model.aggregate.GroupBuyOrderAggregate;
-import com.sirius.model.aggregate.GroupBuyTeamSettlementAggregate;
-import com.sirius.model.entity.*;
-import com.sirius.model.value.GroupBuyProgressVO;
-import com.sirius.model.value.NotifyConfigVO;
-import com.sirius.model.value.NotifyTypeEnumVO;
-import com.sirius.model.value.TradeOrderStatusEnumVO;
+import com.sirius.model.dto.request.*;
+import com.sirius.model.dto.response.*;
+import com.sirius.model.po.*;
+import com.sirius.model.vo.*;
+import com.sirius.model.vo.GroupBuyProgressVO;
+import com.sirius.model.vo.NotifyConfigVO;
+import com.sirius.model.enums.NotifyTypeEnumVO;
+import com.sirius.model.enums.TradeOrderStatusEnumVO;
 import com.sirius.mapper.IGroupBuyActivityDao;
 import com.sirius.mapper.IGroupBuyOrderDao;
 import com.sirius.mapper.IGroupBuyOrderListDao;
 import com.sirius.mapper.INotifyTaskDao;
-import com.sirius.model.entity.GroupBuyActivity;
-import com.sirius.model.entity.GroupBuyOrder;
-import com.sirius.model.entity.GroupBuyOrderList;
-import com.sirius.model.entity.NotifyTask;
+import com.sirius.model.po.GroupBuyActivity;
+import com.sirius.model.po.GroupBuyOrder;
+import com.sirius.model.po.GroupBuyOrderList;
+import com.sirius.model.po.NotifyTask;
 import com.sirius.config.dcc.DCCService;
 import com.sirius.common.Constants;
 import com.sirius.common.enums.ActivityStatusEnumVO;
@@ -116,13 +117,9 @@ public class TradeRepository {
     }
 
     @Transactional(timeout = 500)
-    public MarketPayOrderEntity lockMarketPayOrder(GroupBuyOrderAggregate groupBuyOrderAggregate) {
-        // 获取聚合信息
-        UserEntity userEntity = groupBuyOrderAggregate.getUserEntity();
-        PayActivityEntity payActivityEntity = groupBuyOrderAggregate.getPayActivityEntity();
-        PayDiscountEntity payDiscountEntity = groupBuyOrderAggregate.getPayDiscountEntity();
+    public MarketPayOrderEntity lockMarketPayOrder(UserEntity userEntity, PayActivityEntity payActivityEntity,
+                                                        PayDiscountEntity payDiscountEntity, Integer userTakeOrderCount) {
         NotifyConfigVO notifyConfigVO = payDiscountEntity.getNotifyConfigVO();
-        Integer userTakeOrderCount = groupBuyOrderAggregate.getUserTakeOrderCount();
 
         // 判断是否有团 - teamId为空 -> 新团、teamId不为空 -> 老团
         String teamId = payActivityEntity.getTeamId();
@@ -257,11 +254,9 @@ public class TradeRepository {
     }
 
     @Transactional(timeout = 500)
-    public boolean settlementMarketPayOrder(GroupBuyTeamSettlementAggregate groupBuyTeamSettlementAggregate) {
-        UserEntity userEntity = groupBuyTeamSettlementAggregate.getUserEntity();
-        GroupBuyTeamEntity groupBuyTeamEntity = groupBuyTeamSettlementAggregate.getGroupBuyTeamEntity();
+    public boolean settlementMarketPayOrder(UserEntity userEntity, GroupBuyTeamEntity groupBuyTeamEntity,
+                                                      TradePaySuccessEntity tradePaySuccessEntity) {
         NotifyConfigVO notifyConfigVO = groupBuyTeamEntity.getNotifyConfigVO();
-        TradePaySuccessEntity tradePaySuccessEntity = groupBuyTeamSettlementAggregate.getTradePaySuccessEntity();
         // 1. 更新拼团订单明细状态
         GroupBuyOrderList groupBuyOrderListReq = new GroupBuyOrderList();
         groupBuyOrderListReq.setUserId(userEntity.getUserId());

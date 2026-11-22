@@ -1,10 +1,10 @@
 package com.sirius.test.trigger;
 
 import com.sirius.controller.DCCController;
-import com.sirius.service.activity.IndexGroupBuyMarketServiceImpl;
+import com.sirius.service.market.IMarketService;
 import com.alibaba.fastjson.JSON;
-import com.sirius.model.entity.MarketProductEntity;
-import com.sirius.model.entity.TrialBalanceEntity;
+import com.sirius.model.dto.request.MarketProductEntity;
+import com.sirius.model.vo.TrialBalanceEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +27,7 @@ public class DCCControllerTest {
     private DCCController dccService;
 
     @Resource
-    private IndexGroupBuyMarketServiceImpl indexGroupBuyMarketService;
+    private IMarketService indexGroupBuyMarketService;
 
     @Test
     public void test_updateConfig() {

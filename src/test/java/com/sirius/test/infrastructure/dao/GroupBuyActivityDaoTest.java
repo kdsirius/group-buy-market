@@ -1,7 +1,7 @@
 package com.sirius.test.infrastructure.dao;
 
 import com.sirius.mapper.IGroupBuyActivityDao;
-import com.sirius.model.entity.GroupBuyActivity;
+import com.sirius.model.po.GroupBuyActivity;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;

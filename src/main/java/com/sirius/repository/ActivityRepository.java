@@ -1,9 +1,13 @@
 package com.sirius.repository;
 
-import com.sirius.model.entity.UserGroupBuyOrderDetailEntity;
-import com.sirius.model.value.*;
+import com.sirius.model.vo.UserGroupBuyOrderDetailEntity;
+import com.sirius.model.enums.*;
+import com.sirius.model.vo.*;
 import com.sirius.mapper.*;
-import com.sirius.model.entity.*;
+import com.sirius.model.dto.request.*;
+import com.sirius.model.dto.response.*;
+import com.sirius.model.po.*;
+import com.sirius.model.vo.*;
 import com.sirius.config.dcc.DCCService;
 import com.sirius.client.redis.IRedisService;
 import org.redisson.api.RBitSet;

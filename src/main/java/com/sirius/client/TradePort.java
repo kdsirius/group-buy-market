@@ -2,9 +2,9 @@ package com.sirius.client;
 
 
 import com.sirius.client.ITradePort;
-import com.sirius.model.entity.NotifyTaskEntity;
-import com.sirius.model.value.NotifyTypeEnumVO;
-import com.sirius.messaging.EventPublisher;
+import com.sirius.model.vo.NotifyTaskEntity;
+import com.sirius.model.enums.NotifyTypeEnumVO;
+import com.sirius.mq.publisher.RabbitMessagePublisher;
 import com.sirius.client.GroupBuyNotifyService;
 import com.sirius.client.redis.IRedisService;
 import com.sirius.common.enums.NotifyTaskHTTPEnumVO;
@@ -24,7 +24,7 @@ public class TradePort implements ITradePort {
     @Resource
     private IRedisService redisService;
     @Resource
-    private EventPublisher publisher;
+    private RabbitMessagePublisher publisher;
 
     @Override
     public String groupBuyNotify(NotifyTaskEntity task) throws Exception {

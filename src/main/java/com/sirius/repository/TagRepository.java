@@ -1,12 +1,12 @@
 package com.sirius.repository;
 
-import com.sirius.model.entity.CrowdTagsJobEntity;
+import com.sirius.model.vo.CrowdTagsJobEntity;
 import com.sirius.mapper.ICrowdTagsDao;
 import com.sirius.mapper.ICrowdTagsDetailDao;
 import com.sirius.mapper.ICrowdTagsJobDao;
-import com.sirius.model.entity.CrowdTags;
-import com.sirius.model.entity.CrowdTagsDetail;
-import com.sirius.model.entity.CrowdTagsJob;
+import com.sirius.model.po.CrowdTags;
+import com.sirius.model.po.CrowdTagsDetail;
+import com.sirius.model.po.CrowdTagsJob;
 import com.sirius.client.redis.IRedisService;
 import org.redisson.api.RBitSet;
 import org.springframework.dao.DuplicateKeyException;

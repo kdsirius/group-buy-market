@@ -1,13 +1,13 @@
 package com.sirius.controller;
 
-import com.sirius.model.dto.GoodsMarketRequestDTO;
-import com.sirius.model.dto.GoodsMarketResponseDTO;
-import com.sirius.model.response.Response;
-import com.sirius.model.entity.MarketProductEntity;
-import com.sirius.model.entity.TrialBalanceEntity;
-import com.sirius.model.entity.UserGroupBuyOrderDetailEntity;
-import com.sirius.model.value.TeamStatisticVO;
-import com.sirius.service.activity.IndexGroupBuyMarketServiceImpl;
+import com.sirius.model.dto.request.GoodsMarketRequestDTO;
+import com.sirius.model.dto.response.GoodsMarketResponseDTO;
+import com.sirius.model.dto.response.Response;
+import com.sirius.model.dto.request.MarketProductEntity;
+import com.sirius.model.vo.TrialBalanceEntity;
+import com.sirius.model.vo.UserGroupBuyOrderDetailEntity;
+import com.sirius.model.vo.TeamStatisticVO;
+import com.sirius.service.market.IMarketService;
 import com.sirius.common.enums.ResponseCode;
 import com.sirius.common.exception.AppException;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ import java.util.List;
 public class MarketIndexController {
 
     @Resource
-    private IndexGroupBuyMarketServiceImpl indexGroupBuyMarketService;
+    private IMarketService indexGroupBuyMarketService;
 
     @PostMapping("query_group_buy_market_config")
     public Response<GoodsMarketResponseDTO> queryGroupBuyMarketConfig(@RequestBody GoodsMarketRequestDTO request) {

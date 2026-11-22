@@ -1,6 +1,6 @@
 package com.sirius.test;
 
-import com.sirius.messaging.EventPublisher;
+import com.sirius.mq.publisher.RabbitMessagePublisher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +16,7 @@ import javax.annotation.Resource;
 @SpringBootTest
 public class RabbitMqSmokeTest {
     @Resource
-    private EventPublisher eventPublisher;
+    private RabbitMessagePublisher eventPublisher;
 
 
     @Value("${spring.rabbitmq.config.producer.topic_team_success.routing_key}")

@@ -1,6 +1,6 @@
 package com.sirius.mapper;
 
-import com.sirius.model.entity.GroupBuyDiscount;
+import com.sirius.model.po.GroupBuyDiscount;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

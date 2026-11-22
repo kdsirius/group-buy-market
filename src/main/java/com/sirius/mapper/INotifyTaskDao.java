@@ -1,6 +1,6 @@
 package com.sirius.mapper;
 
-import com.sirius.model.entity.NotifyTask;
+import com.sirius.model.po.NotifyTask;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

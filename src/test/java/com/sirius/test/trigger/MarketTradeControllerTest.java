@@ -2,9 +2,9 @@ package com.sirius.test.trigger;
 
 import com.sirius.controller.MarketTradeController;
 import com.alibaba.fastjson.JSON;
-import com.sirius.model.dto.LockMarketPayOrderRequestDTO;
-import com.sirius.model.dto.LockMarketPayOrderResponseDTO;
-import com.sirius.model.response.Response;
+import com.sirius.model.dto.request.LockMarketPayOrderRequestDTO;
+import com.sirius.model.dto.response.LockMarketPayOrderResponseDTO;
+import com.sirius.model.dto.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;

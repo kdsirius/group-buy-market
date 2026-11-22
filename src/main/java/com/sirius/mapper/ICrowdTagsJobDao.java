@@ -1,6 +1,6 @@
 package com.sirius.mapper;
 
-import com.sirius.model.entity.CrowdTagsJob;
+import com.sirius.model.po.CrowdTagsJob;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

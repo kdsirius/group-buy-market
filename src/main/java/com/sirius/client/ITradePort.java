@@ -1,6 +1,6 @@
 package com.sirius.client;
 
-import com.sirius.model.entity.NotifyTaskEntity;
+import com.sirius.model.vo.NotifyTaskEntity;
 
 
 public interface ITradePort {
